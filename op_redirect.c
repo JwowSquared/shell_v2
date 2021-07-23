@@ -2,16 +2,16 @@
 
 /**
 * op_write - > redirect
-* @list: reference to listcmd struct
+* @db: reference to database struct
 * @cmd: current cmd struct to execute
 *
 * Return: 0 on success, else error code is returned
 */
-int op_write(listcmd_t *list, cmd_t *cmd)
+int op_write(db_t *db, cmd_t *cmd)
 {
 	int i;
 
-	(void)list;
+	(void)db;
 
 	if (cmd->psep != NULL)
 		printf("SEPERATOR = [%s]\n", cmd->psep);
@@ -29,16 +29,16 @@ int op_write(listcmd_t *list, cmd_t *cmd)
 
 /**
 * op_append - >> redirect
-* @list: reference to listcmd struct
+* @db: reference to database struct
 * @cmd: current cmd struct to execute
 *
 * Return: 0 on success, else error code is returned
 */
-int op_append(listcmd_t *list, cmd_t *cmd)
+int op_append(db_t *db, cmd_t *cmd)
 {
 	int i;
 
-	(void)list;
+	(void)db;
 
 	if (cmd->psep != NULL)
 		printf("SEPERATOR = [%s]\n", cmd->psep);
@@ -56,16 +56,16 @@ int op_append(listcmd_t *list, cmd_t *cmd)
 
 /**
 * op_read - < redirect
-* @list: reference to listcmd struct
+* @db: reference to database struct
 * @cmd: current cmd struct to execute
 *
 * Return: 0 on success, else error code is returned
 */
-int op_read(listcmd_t *list, cmd_t *cmd)
+int op_read(db_t *db, cmd_t *cmd)
 {
 	int i;
 
-	(void)list;
+	(void)db;
 
 	if (cmd->psep != NULL)
 		printf("SEPERATOR = [%s]\n", cmd->psep);
@@ -83,16 +83,16 @@ int op_read(listcmd_t *list, cmd_t *cmd)
 
 /**
 * op_heredoc - << redirect
-* @list: reference to listcmd struct
+* @db: reference to database struct
 * @cmd: current cmd struct to execute
 *
 * Return: 0 on success, else error code is returned
 */
-int op_heredoc(listcmd_t *list, cmd_t *cmd)
+int op_heredoc(db_t *db, cmd_t *cmd)
 {
 	int i;
 
-	(void)list;
+	(void)db;
 
 	if (cmd->psep != NULL)
 		printf("SEPERATOR = [%s]\n", cmd->psep);
@@ -110,16 +110,16 @@ int op_heredoc(listcmd_t *list, cmd_t *cmd)
 
 /**
 * op_pipe - | redirect
-* @list: reference to listcmd struct
+* @db: reference to database struct
 * @cmd: current cmd struct to execute
 *
 * Return: 0 on success, else error code is returned
 */
-int op_pipe(listcmd_t *list, cmd_t *cmd)
+int op_pipe(db_t *db, cmd_t *cmd)
 {
 	int i;
 
-	(void)list;
+	(void)db;
 
 	if (cmd->psep != NULL)
 		printf("SEPERATOR = [%s]\n", cmd->psep);

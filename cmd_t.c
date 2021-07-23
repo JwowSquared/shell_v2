@@ -1,36 +1,9 @@
 #include "shell_v2.h"
 
 /**
-* gumball - returns the proper function based on the given operator
-* @op: string to compare against the gumballs
-*
-* Return: function that takes a cmd_t pointer and returns an int
-*/
-int (*gumball(char *op))(listcmd_t *, cmd_t *)
-{
-	int i;
-	gum_t gm[] = {
-		{">", &op_write},
-		{">>", &op_append},
-		{"<", &op_read},
-		{"<<", &op_heredoc},
-		{"|", &op_pipe},
-		{";", &op_semi},
-		{"||", &op_or},
-		{"&&", &op_and},
-		{NULL, NULL}
-	};
-
-	for (i = 0; gm[i].op != NULL; i++)
-		if (!_strcmp(gm[i].op, op))
-			return (gm[i].f);
-
-	return (NULL);
-}
-
-/**
 * build_cmd - converts a command line into a cmd struct
 * @line: command line to convert
+* @psep: the previous separate operator
 *
 * Return: pointer to new struct, else NULL
 */
@@ -76,6 +49,52 @@ cmd_t *build_cmd(char *line, char *psep)
 	out->right[i] = NULL;
 
 	return (out);
+}
+
+/**
+* gumball - returns the proper function based on the given operator
+* @op: string to compare against the gumballs
+*
+* Return: function pointer that handles that specific operator
+*/
+int (*gumball(char *op))(db_t *, cmd_t *)
+{
+	int i;
+	gum_t gm[] = {
+		{">", &op_write},
+		{">>", &op_append},
+		{"<", &op_read},
+		{"<<", &op_heredoc},
+		{"|", &op_pipe},
+		{";", &op_semi},
+		{"||", &op_or},
+		{"&&", &op_and},
+		{NULL, NULL}
+	};
+
+	for (i = 0; gm[i].op != NULL; i++)
+		if (!_strcmp(gm[i].op, op))
+			return (gm[i].f);
+
+	return (NULL);
+}
+/**
+* execute_cmd - executes a command
+* @db: reference to database struct
+* @cmd: double char pointer containing the command to execute
+*/
+void execute_cmd(db_t *db, char **cmd)
+{
+	int status;
+
+	if (!fork())
+	{
+		execve(cmd[0], cmd, db->env);
+		perror(NULL);
+		exit(2);
+	}
+	wait(&status);
+	db->pstat = WEXITSTATUS(status);
 }
 
 /**
