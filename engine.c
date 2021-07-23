@@ -21,15 +21,16 @@ int main(int ac, char **av, char **env)
 	int code = 0, interactive = isatty(0);
 
 	(void)ac;
-	(void)av;
 
 	db = malloc(sizeof(db_t));
 	if (db == NULL)
 		return (1); /* What to do on malloc fail? */
 	db->env = env;
+	db->pname = av[0];
+	db->toexit = 0;
 	db->pstat = 0;
 
-	while (1)
+	while (!db->toexit)
 	{
 		if (interactive)
 			printf("$ ");

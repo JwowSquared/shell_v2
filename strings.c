@@ -47,3 +47,31 @@ char *_strdup(char *input)
 
 	return (out);
 }
+
+/**
+* _atoi - converts string number into integer, for use with bi_exit
+* @code: string to convert
+* @db: used for error printing, database of current environment
+*
+* Return: converted integer, else 2 when invalid string is given
+*/
+int _atoi(char *code, db_t *db)
+{
+	int result = 0, i = 0, tmp;
+	char *ep = "%s: %s: %s: numeric argument is required\n";
+
+	while (code[i] != '\0')
+	{
+		tmp = code[i] - '0';
+		if (tmp < 0 || tmp > 9)
+		{
+			fprintf(stderr, ep, db->pname, "exit", code);
+			return (2);
+		}
+		result *= 10;
+		result += tmp;
+		i++;
+	}
+
+	return (result);
+}

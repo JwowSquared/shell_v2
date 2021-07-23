@@ -70,13 +70,16 @@ void execute_list(listcmd_t *list)
 	{
 		tmp = current;
 		current = current->next;
+
+		if (list->db->toexit)
+			continue;
 		if (tmp->psep != NULL && (*tmp->psep)(list->db->pstat))
 			continue;
 
 		if (tmp->opf != NULL)
 			tmp->opf(list->db, tmp);
 		else
-			execute_cmd(list->db, tmp->left);
+			list->db->pstat = execute_cmd(list->db, tmp->left);
 	}
 }
 
