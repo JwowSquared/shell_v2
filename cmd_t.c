@@ -6,18 +6,18 @@
 *
 * Return: function that takes a cmd_t pointer and returns an int
 */
-int (*gumball(char *op))(cmd_t *)
+int (*gumball(char *op))(listcmd_t *, cmd_t *)
 {
 	int i;
 	gum_t gm[] = {
-		{">", &example},
-		{">>", &example},
-		{"<", &example},
-		{"<<", &example},
-		{"|", &example},
-		{";", &example},
-		{"&&", &example},
-		{"||", &example},
+		{">", &op_write},
+		{">>", &op_append},
+		{"<", &op_read},
+		{"<<", &op_heredoc},
+		{"|", &op_pipe},
+		{";", &op_semi},
+		{"||", &op_or},
+		{"&&", &op_and},
 		{NULL, NULL}
 	};
 
@@ -70,7 +70,7 @@ cmd_t *build_cmd(char *line, char *psep)
 	for (i = 1; i < w_left; i++)
 		out->left[i] = strtok(NULL, " ");
 	out->left[i] = NULL;
-	out->op = strtok(NULL, " ");
+	strtok(NULL, " "); /* skips over Operator */
 	for (i = 0; i < w_right; i++)
 		out->right[i] = strtok(NULL, " ");
 	out->right[i] = NULL;

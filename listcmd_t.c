@@ -1,32 +1,31 @@
 #include "shell_v2.h"
 
-int example(cmd_t *cmd)
+void execute_cmd(listcmd_t *list, char **cmd)
 {
-        int i;
+	int status;
 
-	if (cmd->psep != NULL)
-		printf("SEPERATOR = [%s]\n", cmd->psep);
-
-        for (i = 0; cmd->left[i] != NULL; i++)
-                printf("%d: [%s]\n", i, cmd->left[i]);
-
-        for (i = 0; cmd->right[i] != NULL; i++)
-                printf("%d: [%s]\n", i, cmd->right[i]);
-
-        printf("For use with [%s]\n", cmd->op);
-
-        return (1);
+	if (!fork())
+	{
+		execve(cmd[0], cmd, list->env);
+		perror(NULL);
+		exit(2);
+	}
+	wait(&status);
+	list->pstat = WEXITSTATUS(status);
 }
 
-listcmd_t *build_cmds(char *input)
+listcmd_t *build_cmds(char *input, char **env)
 {
 	listcmd_t *out;
 
+	input = strtok(input, "\n");
 	out = malloc(sizeof(listcmd_t));
 	if (out == NULL)
 		return (NULL);
 	out->pstat = 0;
 	out->head = NULL;
+	out->env = env;
+
 	gen_cmds(out, input, 1);
 
 	return (out);
@@ -44,7 +43,7 @@ char *gen_cmds(listcmd_t *list, char *input, int s)
 	if (input || !_strcmp(tmp, ";") || !_strcmp(tmp, "||") || !_strcmp(tmp, "&&"))
 		sep = 1;
 	line = gen_cmds(list, NULL, s + sep);
-	if (input != NULL || (!sep && line != NULL))
+	if (line != NULL && (input != NULL || !sep))
 		*(line - 1) = ' ';
 	if (sep)
 	{
@@ -77,27 +76,17 @@ void *free_listcmd(listcmd_t *list)
 	return (NULL);
 }
 
-void exe_list(listcmd_t *list)
+void execute_list(listcmd_t *list)
 {
 	cmd_t *current;
 
 	current = list->head;
 	while (current != NULL)
 	{
-		current->opf(current);
+		if (current->opf != NULL)
+			current->opf(list, current);
+		else
+			execute_cmd(list, current->left);
 		current = current->next;
 	}
-}
-
-int main(int ac, char **av)
-{
-	listcmd_t *list;
-
-	(void)ac;
-
-	list = build_cmds(av[1]);
-	exe_list(list);
-	free_listcmd(list);
-
-	return (0);
 }
