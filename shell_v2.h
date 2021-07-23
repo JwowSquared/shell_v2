@@ -23,7 +23,7 @@ typedef struct db_s
 * struct cmd_s - linked list node that holds all info for command execution
 * @left: tokenized array of args left of redirect operator
 * @right: tokenized array of args right of redirect operator
-* @psep: pointer to the most recent separator op FIX ME to function reference
+* @psep: function reference to the separate operator
 * @opf: function reference to the redirect operator
 * @next: reference to next cmd in the linked list
 */
@@ -31,7 +31,7 @@ typedef struct cmd_s
 {
 	char **left;
 	char **right;
-	char *psep;
+	int (*psep)(int);
 	int (*opf)(db_t *, struct cmd_s *);
 	struct cmd_s *next;
 } cmd_t;
@@ -48,15 +48,26 @@ typedef struct listcmd_s
 } listcmd_t;
 
 /**
-* struct gum_s - pair of operator and function
-* @op: operator
+* struct rball_s - pair of operator and function
+* @op: redirect operator
 * @f: function reference related to the operator
 */
-typedef struct gum_s
+typedef struct rball_s
 {
 	char *op;
 	int (*f)(db_t *, cmd_t *);
-} gum_t;
+} rball_t;
+
+/**
+* struct sball_s - pair of operator and function
+* @op: separator operator
+* @f: function reference related to the operator
+*/
+typedef struct sball_s
+{
+	char *op;
+	int (*f)(int);
+} sball_t;
 
 
 
@@ -69,7 +80,8 @@ void *free_listcmd(listcmd_t *);
 
 /* cmd_t Functions */
 cmd_t *build_cmd(char *, char *);
-int (*gumball(char *))(db_t *, cmd_t *);
+int (*rball(char *))(db_t *, cmd_t *);
+int (*sball(char *))(int);
 void execute_cmd(db_t *, char **);
 void *free_cmd(cmd_t *);
 
@@ -81,15 +93,12 @@ int op_heredoc(db_t *, cmd_t *);
 int op_pipe(db_t *, cmd_t *);
 
 /* Separate Functions */
-int op_semi(db_t *, cmd_t *);
-int op_or(db_t *, cmd_t *);
-int op_and(db_t *, cmd_t *);
+int op_semi(int);
+int op_or(int);
+int op_and(int);
 
 /* String Functions */
 int _strcmp(char *, char *);
 char *_strdup(char *);
-
-/* Debug Functions */
-int example(db_t *, cmd_t *);
 
 #endif /* _SHELL_V2_ */

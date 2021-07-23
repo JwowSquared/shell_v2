@@ -2,47 +2,39 @@
 
 /**
 * op_semi - ; separator
-* @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @pstat: status code from the last executed command
 *
 * Return: always 0
 */
-int op_semi(db_t *db, cmd_t *cmd)
+int op_semi(int pstat)
 {
-	(void)cmd;
-	(void)db;
+	(void)pstat;
 
 	return (0);
 }
 
 /**
 * op_or - || separator
-* @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @pstat: status code from the last executed command
 *
 * Return: 1 if pstat is 0, else 0
 */
-int op_or(db_t *db, cmd_t *cmd)
+int op_or(int pstat)
 {
-	(void)cmd;
-
-	if (db->pstat == 0)
+	if (pstat == 0)
 		return (1);
 	return (0);
 }
 
 /**
 * op_and - && separator
-* @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @pstat: status code from the last executed command
 *
 * Return: 0 if pstat is 0, else 1
 */
-int op_and(db_t *db, cmd_t *cmd)
+int op_and(int pstat)
 {
-	(void)cmd;
-
-	if (db->pstat == 0)
+	if (pstat == 0)
 		return (0);
 	return (1);
 }

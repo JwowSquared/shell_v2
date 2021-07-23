@@ -63,16 +63,20 @@ char *gen_cmds(listcmd_t *list, char *input)
 */
 void execute_list(listcmd_t *list)
 {
-	cmd_t *current;
+	cmd_t *current, *tmp;
 
 	current = list->head;
 	while (current != NULL)
 	{
-		if (current->opf != NULL)
-			current->opf(list->db, current);
-		else
-			execute_cmd(list->db, current->left);
+		tmp = current;
 		current = current->next;
+		if (tmp->psep != NULL && (*tmp->psep)(list->db->pstat))
+			continue;
+
+		if (tmp->opf != NULL)
+			tmp->opf(list->db, tmp);
+		else
+			execute_cmd(list->db, tmp->left);
 	}
 }
 

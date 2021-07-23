@@ -17,13 +17,13 @@ cmd_t *build_cmd(char *line, char *psep)
 	if (out == NULL)
 		return (NULL);
 	out->opf = NULL;
-	out->psep = psep;
+	out->psep = sball(psep);
 	line = strtok(line, "\n");
 	temp = _strdup(line);
 	word = strtok(temp, " ");
 	while ((word = strtok(NULL, " ")))
 	{
-		out->opf = gumball(word);
+		out->opf = rball(word);
 		if (out->opf != NULL)
 			break;
 		w_left++;
@@ -52,32 +52,59 @@ cmd_t *build_cmd(char *line, char *psep)
 }
 
 /**
-* gumball - returns the proper function based on the given operator
+* rball - returns the proper function based on the given redirect
 * @op: string to compare against the gumballs
 *
 * Return: function pointer that handles that specific operator
 */
-int (*gumball(char *op))(db_t *, cmd_t *)
+int (*rball(char *op))(db_t *, cmd_t *)
 {
 	int i;
-	gum_t gm[] = {
+	rball_t pot[] = {
 		{">", &op_write},
 		{">>", &op_append},
 		{"<", &op_read},
 		{"<<", &op_heredoc},
 		{"|", &op_pipe},
+		{NULL, NULL}
+	};
+
+	if (op == NULL)
+		return (NULL);
+
+	for (i = 0; pot[i].op != NULL; i++)
+		if (!_strcmp(pot[i].op, op))
+			return (pot[i].f);
+
+	return (NULL);
+}
+
+/**
+* sball - returns the proper function based on the given separator
+* @op: string to compare against the gumballs
+*
+* Return: function pointer that handles that specific operator
+*/
+int (*sball(char *op))(int)
+{
+	int i;
+	sball_t pot[] = {
 		{";", &op_semi},
 		{"||", &op_or},
 		{"&&", &op_and},
 		{NULL, NULL}
 	};
 
-	for (i = 0; gm[i].op != NULL; i++)
-		if (!_strcmp(gm[i].op, op))
-			return (gm[i].f);
+	if (op == NULL)
+		return (NULL);
+
+	for (i = 0; pot[i].op != NULL; i++)
+		if (!_strcmp(pot[i].op, op))
+			return (pot[i].f);
 
 	return (NULL);
 }
+
 /**
 * execute_cmd - executes a command
 * @db: reference to database struct
