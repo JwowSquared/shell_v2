@@ -34,7 +34,7 @@ int (*gumball(char *op))(cmd_t *)
 *
 * Return: pointer to new struct, else NULL
 */
-cmd_t *build_cmd(char *line)
+cmd_t *build_cmd(char *line, char *psep)
 {
 	cmd_t *out;
 	char *temp, *word;
@@ -44,7 +44,7 @@ cmd_t *build_cmd(char *line)
 	if (out == NULL)
 		return (NULL);
 	out->opf = NULL;
-
+	out->psep = psep;
 	line = strtok(line, "\n");
 	temp = _strdup(line);
 	word = strtok(temp, " ");

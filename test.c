@@ -1,47 +1,103 @@
 #include "shell_v2.h"
 
-void test(char *input)
+int example(cmd_t *cmd)
 {
-	char *temp = strtok(input, ";|&");
-	if (temp == NULL)
-		return;
-	printf("DOWN [%s]\n", temp);
-	test(NULL);
-	printf("UP [%s]\n", temp);
+        int i;
+
+	if (cmd->psep != NULL)
+		printf("SEPERATOR = [%s]\n", cmd->psep);
+
+        for (i = 0; cmd->left[i] != NULL; i++)
+                printf("%d: [%s]\n", i, cmd->left[i]);
+
+        for (i = 0; cmd->right[i] != NULL; i++)
+                printf("%d: [%s]\n", i, cmd->right[i]);
+
+        printf("For use with [%s]\n", cmd->op);
+
+        return (1);
 }
 
-char *test2(char *input, int s)
+listcmd_t *build_cmds(char *input)
 {
-	char *temp, *line;
-	int sep = s;
+	listcmd_t *out;
 
-	temp = strtok(input, " ");
-	if (temp == NULL)
+	out = malloc(sizeof(listcmd_t));
+	if (out == NULL)
 		return (NULL);
-	if (!strcmp(temp, ";") || !strcmp(temp, "||") || !strcmp(temp, "&&"))
+	out->pstat = 0;
+	out->head = NULL;
+	gen_cmds(out, input, 1);
+
+	return (out);
+}
+
+char *gen_cmds(listcmd_t *list, char *input, int s)
+{
+	char *tmp, *line;
+	int sep = 0;
+	cmd_t *cmd;
+
+	tmp = strtok(input, " ");
+	if (tmp == NULL)
+		return (NULL);
+	if (input || !_strcmp(tmp, ";") || !_strcmp(tmp, "||") || !_strcmp(tmp, "&&"))
 		sep = 1;
-	line = test2(NULL, 0);
-	if (!sep && line != NULL && input == NULL)
+	line = gen_cmds(list, NULL, s + sep);
+	if (input != NULL || (!sep && line != NULL))
 		*(line - 1) = ' ';
 	if (sep)
 	{
 		if (input != NULL)
-		{
-			*(line - 1) = ' ';
-			printf("GEN CMD WITH [%s] AND NO OP\n", temp);
-		}
+			cmd = build_cmd(tmp, NULL);
 		else
-			printf("GEN CMD WITH [%s] FOR [%s]\n", line, temp);
+			cmd = build_cmd(line, tmp);
+		cmd->next = list->head;
+		list->head = cmd;
 		return (NULL);
 	}
-	return (temp);
+	return (tmp);
+}
+
+void *free_listcmd(listcmd_t *list)
+{
+	cmd_t *current;
+
+	if (list == NULL)
+		return (NULL);
+
+	if (list->head != NULL)
+		while ((current = list->head))
+		{
+			list->head = list->head->next;
+			free_cmd(current);
+		}
+
+	free(list);
+	return (NULL);
+}
+
+void exe_list(listcmd_t *list)
+{
+	cmd_t *current;
+
+	current = list->head;
+	while (current != NULL)
+	{
+		current->opf(current);
+		current = current->next;
+	}
 }
 
 int main(int ac, char **av)
 {
+	listcmd_t *list;
+
 	(void)ac;
 
-	test2(av[1], 1);
+	list = build_cmds(av[1]);
+	exe_list(list);
+	free_listcmd(list);
 
 	return (0);
 }
