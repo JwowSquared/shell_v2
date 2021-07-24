@@ -58,14 +58,14 @@ char *_strdup(char *input)
 int _atoi(char *code, db_t *db)
 {
 	int result = 0, i = 0, tmp;
-	char *ep = "%s: %s: %s: numeric argument is required\n";
+	char *ep = "%s: %d: %s: Illegal number: %s\n";
 
 	while (code[i] != '\0')
 	{
 		tmp = code[i] - '0';
 		if (tmp < 0 || tmp > 9)
 		{
-			fprintf(stderr, ep, db->pname, "exit", code);
+			fprintf(stderr, ep, db->pname, db->ln, "exit", code);
 			return (2);
 		}
 		result *= 10;

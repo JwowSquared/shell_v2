@@ -22,13 +22,9 @@ int main(int ac, char **av, char **env)
 
 	(void)ac;
 
-	db = malloc(sizeof(db_t));
+	db = build_db(av[0], env);
 	if (db == NULL)
 		return (1); /* What to do on malloc fail? */
-	db->env = env;
-	db->pname = av[0];
-	db->toexit = 0;
-	db->pstat = 0;
 
 	while (!db->toexit)
 	{
@@ -39,10 +35,11 @@ int main(int ac, char **av, char **env)
 		list = build_cmds(line, db);
 		execute_list(list);
 		free_listcmd(list);
+		db->ln++;
 	}
 
 	free(line);
 	code = db->pstat;
-	free(db);
+	free_db(db);
 	exit(code);
 }

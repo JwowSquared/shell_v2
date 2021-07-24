@@ -9,18 +9,39 @@
 #include <sys/wait.h>
 
 /**
+* struct env_s - linked list representation of env
+* @s: key=value string
+* @next: next node
+*/
+typedef struct env_s
+{
+	char *s;
+	struct env_s *next;
+} env_t;
+
+/**
 * struct db_s - database representing the current environment
-* @env: current environment variables
 * @pname: program name
-* @toexit: flag to be set when an exit is ordered
+* @ln: line number used for error printing
 * @pstat: most recent command's exit code
+* @toexit: flag to be set when an exit is ordered
+* @env: array of environment variables for use with execve
+* @a_max: the max number of variables that can fit in env currently
+* @envh: head of a linked list representation of the environment variables
+* @h_size: the current number of nodes in the envh linked list
+* @h_diff: flag set to mark that envh has been updated
 */
 typedef struct db_s
 {
-	char **env;
 	char *pname;
-	int toexit;
+	int ln;
 	int pstat;
+	int toexit;
+	char **env;
+	int a_max;
+	env_t *envh;
+	int h_size;
+	int h_diff;
 } db_t;
 
 /**
@@ -86,6 +107,10 @@ typedef struct bball_s
 
 
 
+/* Database Functions */
+db_t *build_db(char *pname, char **env);
+char **format_env(db_t *db);
+void *free_db(db_t *db);
 
 /* listcmd_t Functions */
 listcmd_t *build_cmds(char *, db_t *);
