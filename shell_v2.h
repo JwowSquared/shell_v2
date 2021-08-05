@@ -118,6 +118,7 @@ typedef struct bball_s
 
 /* Database Functions */
 db_t *build_db(char *pname, char **env);
+int rev_env(db_t *db, char **env);
 char **format_env(db_t *db);
 void *free_db(db_t *db);
 

@@ -9,9 +9,7 @@
 */
 db_t *build_db(char *pname, char **env)
 {
-	int i = 0;
 	db_t *db;
-	env_t *tmp;
 
 	db = malloc(sizeof(db_t));
 	if (db == NULL)
@@ -22,26 +20,45 @@ db_t *build_db(char *pname, char **env)
 	db->toexit = 0;
 	db->pstat = 0;
 	db->envh = NULL;
-	while (env[i] != NULL)
-	{
-		tmp = malloc(sizeof(env_t));
-		if (tmp == NULL)
-			return (free_db(db));
+	db->h_size = rev_env(db, env);
+	if (db->h_size == -1)
+		return (free_db(db));
 
-		tmp->s = _strdup(env[i]);
-		if (tmp->s == NULL)
-			return (free_db(db));
-
-		tmp->next = db->envh;
-		db->envh = tmp;
-		i++;
-	}
-	db->h_size = i + 1;
 	db->a_max = 0;
 	db->env = NULL;
 	db->h_diff = 1;
 
 	return (db);
+}
+
+/**
+* rev_env - creates a linked list but backwards
+* @db: reference to database struct
+* @env: environment variables transferred from main
+*
+* Return: length of linked list, else -1
+*/
+int rev_env(db_t *db, char **env)
+{
+	int i;
+	env_t *tmp;
+
+	if (*env == NULL)
+		return (0);
+
+	i = rev_env(db, &env[1]);
+	tmp = malloc(sizeof(env_t));
+	if (tmp == NULL)
+		return (-1);
+
+	tmp->s = _strdup(*env);
+	if (tmp->s == NULL)
+		return (-1);
+
+	tmp->next = db->envh;
+	db->envh = tmp;
+
+	return (i + 1);
 }
 
 /**

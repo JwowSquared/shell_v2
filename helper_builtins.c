@@ -10,8 +10,12 @@
 env_t *insert_env(db_t *db, char **cmd)
 {
 	int i = 0;
-	env_t *current;
-	char *key = cmd[1], *val = cmd[2];
+	env_t *current, *prev = NULL;
+	char *cat, *key = cmd[1], *val = cmd[2];
+
+	cat = malloc(sizeof(char) * (_strlen(key) + _strlen(val) + 2));
+	if (cat == NULL)
+		return (NULL);
 
 	current = db->envh;
 	while (current != NULL)
@@ -21,6 +25,7 @@ env_t *insert_env(db_t *db, char **cmd)
 				break;
 		if (key[i] == '\0' && current->s[i] == '=')
 			break;
+		prev = current;
 		current = current->next;
 	}
 
@@ -29,19 +34,15 @@ env_t *insert_env(db_t *db, char **cmd)
 		current = malloc(sizeof(env_t));
 		if (current == NULL)
 			return (NULL);
-		current->next = db->envh;
+		current->next = NULL;
+		if (prev != NULL)
+			prev->next = current;
+		else
+			db->envh = current;
 	}
 	else
 		free(current->s);
-
-	current->s = malloc(sizeof(char) * (i + _strlen(val) + 2));
-	if (current->s == NULL)
-	{
-		free(current);
-		return (NULL);
-	}
-	db->envh = current;
-
+	current->s = cat;
 	if (cmd[2] != NULL)
 		sprintf(current->s, "%s=%s", key, val);
 	else
