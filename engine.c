@@ -24,7 +24,7 @@ int main(int ac, char **av, char **env)
 
 	db = build_db(av[0], env);
 	if (db == NULL)
-		return (1); /* What to do on malloc fail? */
+		exit(eprint(DB_ERR, NULL, av));
 
 	while (!db->toexit)
 	{
@@ -33,6 +33,11 @@ int main(int ac, char **av, char **env)
 		if (getline(&line, &len, stdin) == -1)
 			break;
 		list = build_cmds(line, db);
+		if (list == NULL)
+		{
+			db->pstat = eprint(MALLOC_ERR, db, NULL);
+			break;
+		}
 		execute_list(list);
 		free_listcmd(list);
 		db->ln++;

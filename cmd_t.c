@@ -69,7 +69,7 @@ int execute_cmd(db_t *db, char **cmd)
 
 	db->env = format_env(db);
 	if (db->env == NULL)
-		return (2); /* What do on malloc fail? */
+		return (eprint(MALLOC_ERR, db, cmd));
 
 	if (!fork())
 	{

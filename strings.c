@@ -11,9 +11,6 @@ int _strcmp(char *s1, char *s2)
 {
 	int i = 0;
 
-	if (s1 == NULL || s2 == NULL)
-		printf("_strcmp was passed a null string\n");
-
 	while (s1[i] && s2[i] && s1[i] == s2[i])
 		i++;
 
@@ -49,29 +46,20 @@ char *_strdup(char *input)
 }
 
 /**
-* _atoi - converts string number into integer, for use with bi_exit
-* @code: string to convert
-* @db: used for error printing, database of current environment
+* _strlen - returns length of string
+* @str: string to find length of
 *
-* Return: converted integer, else 2 when invalid string is given
+* Return: length of str, else 0
 */
-int _atoi(char *code, db_t *db)
+int _strlen(char *str)
 {
-	int result = 0, i = 0, tmp;
-	char *ep = "%s: %d: %s: Illegal number: %s\n";
+	int i = 0;
 
-	while (code[i] != '\0')
-	{
-		tmp = code[i] - '0';
-		if (tmp < 0 || tmp > 9)
-		{
-			fprintf(stderr, ep, db->pname, db->ln, "exit", code);
-			return (2);
-		}
-		result *= 10;
-		result += tmp;
+	if (str == NULL)
+		return (0);
+
+	while (str[i])
 		i++;
-	}
 
-	return (result);
+	return (i);
 }
