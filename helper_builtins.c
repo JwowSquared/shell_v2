@@ -11,7 +11,7 @@ env_t *insert_env(db_t *db, char **cmd)
 {
 	int i = 0;
 	env_t *current;
-	char *key = cmd[0], *val = cmd[1];
+	char *key = cmd[1], *val = cmd[2];
 
 	current = db->envh;
 	while (current != NULL)
