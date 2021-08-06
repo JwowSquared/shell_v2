@@ -5,8 +5,10 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <string.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <errno.h>
 
 /**
 * struct env_s - linked list representation of env
@@ -30,6 +32,7 @@ typedef struct env_s
 * @envh: head of a linked list representation of the environment variables
 * @h_size: the current number of nodes in the envh linked list
 * @h_diff: flag set to mark that envh has been updated
+* @p_diff: flag set to mark that a path has been prepended to cmd
 */
 typedef struct db_s
 {
@@ -42,6 +45,7 @@ typedef struct db_s
 	env_t *envh;
 	int h_size;
 	int h_diff;
+	int p_diff;
 } db_t;
 
 /**
@@ -116,6 +120,9 @@ typedef struct bball_s
 #define UNSET_ERR2 5
 #define DB_ERR 6
 #define CD_ERR 7
+#define PATH_ERR 8
+
+int check_path(db_t *db, char **cmd);
 
 /* Database Functions */
 db_t *build_db(char *, char **);

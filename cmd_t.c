@@ -71,6 +71,12 @@ int execute_cmd(db_t *db, char **cmd)
 	if (db->env == NULL)
 		return (eprint(MALLOC_ERR, db, cmd));
 
+	status = check_path(db, cmd);
+	if (status == -1)
+		return (eprint(PATH_ERR, db, cmd));
+	if (status == -2)
+		return (eprint(MALLOC_ERR, db, cmd));
+
 	if (!fork())
 	{
 		execve(cmd[0], cmd, db->env);
@@ -78,6 +84,10 @@ int execute_cmd(db_t *db, char **cmd)
 		exit(2);
 	}
 	wait(&status);
+
+	if (db->p_diff)
+		free(cmd[0]);
+	db->p_diff = 0;
 	return (WEXITSTATUS(status));
 }
 

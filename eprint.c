@@ -19,6 +19,7 @@ int eprint(int m, db_t *db, char **cmd)
 		"%s: %d: unsetenv: key not found\n",
 		"%s: 0: database malloc failed, exiting\n",
 		"%s: %d: cd: cant cd to %s\n",
+		"%s: %d: %s: not found\n",
 		NULL
 	};
 
@@ -61,6 +62,11 @@ int eprint(int m, db_t *db, char **cmd)
 	if (m == DB_ERR) /* notably, db is NULL */
 	{
 		fprintf(stderr, e[m], cmd[0]);
+		return (2);
+	}
+	if (m == PATH_ERR) /* could be default */
+	{
+		fprintf(stderr, e[m], db->pname, db->ln, cmd[0]);
 		return (2);
 	}
 

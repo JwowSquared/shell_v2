@@ -60,7 +60,7 @@ int bi_cd(db_t *db, char **cmd)
 	{
 		tmp = _strdup(dest);
 		if (tmp == NULL)
-			return(eprint(MALLOC_ERR, db, cmd));
+			return (eprint(MALLOC_ERR, db, cmd));
 	}
 	else
 		tmp = dest;
