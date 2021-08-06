@@ -44,7 +44,7 @@ int bi_cd(db_t *db, char **cmd)
 
 	if (dest == NULL)
 		dest = get_env(db, "HOME");
-	else if (!strcmp(dest, "-"))
+	else if (!_strcmp(dest, "-"))
 		dest = get_env(db, "OLDPWD");
 
 	if (dest == NULL)

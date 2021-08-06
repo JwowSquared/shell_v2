@@ -67,7 +67,7 @@ int eprint(int m, db_t *db, char **cmd)
 	if (m == PATH_ERR) /* could be default */
 	{
 		fprintf(stderr, e[m], db->pname, db->ln, cmd[0]);
-		return (2);
+		return (127);
 	}
 
 	return (-1);
