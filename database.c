@@ -20,12 +20,12 @@ db_t *build_db(char *pname, char **env)
 	db->toexit = 0;
 	db->pstat = 0;
 	db->envh = NULL;
+	db->env = NULL;
 	db->h_size = rev_env(db, env);
 	if (db->h_size == -1)
 		return (free_db(db));
 
 	db->a_max = 0;
-	db->env = NULL;
 	db->h_diff = 1;
 	db->p_diff = 0;
 	return (db);

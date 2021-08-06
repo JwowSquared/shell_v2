@@ -60,7 +60,7 @@ int check_path(db_t *db, char **cmd)
 {
 	struct stat st;
 	int i = 0, match = 0;
-	char *slice, *out, *p, *name = cmd[0], *path = get_env(db, "PATH");
+	char *slice, *out = NULL, *p, *name = cmd[0], *path = get_env(db, "PATH");
 
 	while (name[i])
 		if (name[i++] == '/')

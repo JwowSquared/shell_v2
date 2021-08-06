@@ -121,7 +121,7 @@ int bi_setenv(db_t *db, char **cmd)
 		if (cmd[1][i++] == '=')
 			return (eprint(SETENV_ERR2, db, cmd));
 
-	current = insert_env(db, cmd[0], cmd[1]);
+	current = insert_env(db, cmd[1], cmd[2]);
 	if (current == NULL)
 		return (eprint(MALLOC_ERR, db, cmd));
 
