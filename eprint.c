@@ -18,6 +18,7 @@ int eprint(int m, db_t *db, char **cmd)
 		"%s: %d: unsetenv: key cant be missing\n",
 		"%s: %d: unsetenv: key not found\n",
 		"%s: 0: database malloc failed, exiting\n",
+		"%s: %d: cd: cant cd to %s\n",
 		NULL
 	};
 
@@ -28,6 +29,11 @@ int eprint(int m, db_t *db, char **cmd)
 		return (2);
 	}
 	if (m == EXIT_ERR) /* notably, cmd[1] is used */
+	{
+		fprintf(stderr, e[m], db->pname, db->ln, cmd[1]);
+		return (2);
+	}
+	if (m == CD_ERR) /* notably, cmd[1] is used */
 	{
 		fprintf(stderr, e[m], db->pname, db->ln, cmd[1]);
 		return (2);

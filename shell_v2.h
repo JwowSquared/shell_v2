@@ -115,12 +115,13 @@ typedef struct bball_s
 #define UNSET_ERR1 4
 #define UNSET_ERR2 5
 #define DB_ERR 6
+#define CD_ERR 7
 
 /* Database Functions */
-db_t *build_db(char *pname, char **env);
-int rev_env(db_t *db, char **env);
-char **format_env(db_t *db);
-void *free_db(db_t *db);
+db_t *build_db(char *, char **);
+int rev_env(db_t *, char **);
+char **format_env(db_t *);
+void *free_db(db_t *);
 
 /* listcmd_t Functions */
 listcmd_t *build_cmds(char *, db_t *);
@@ -146,7 +147,8 @@ int bi_setenv(db_t *, char **);
 int bi_unsetenv(db_t *, char **);
 
 /* Builtin Helpers */
-env_t *insert_env(db_t *db, char **cmd);
+env_t *insert_env(db_t *, char *, char *);
+char *get_env(db_t *, char *);
 
 /* Redirect Functions */
 int op_write(db_t *, cmd_t *);

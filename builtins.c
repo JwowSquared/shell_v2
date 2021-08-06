@@ -40,12 +40,43 @@ int bi_exit(db_t *db, char **cmd)
 */
 int bi_cd(db_t *db, char **cmd)
 {
-	(void)db;
-	(void)cmd;
+	char *tmp = NULL, *dest = cmd[1];
 
-	printf("BUILTIN CD\n");
+	if (dest == NULL)
+		dest = get_env(db, "HOME");
+	else if (!strcmp(dest, "-"))
+		dest = get_env(db, "OLDPWD");
 
-	return (1);
+	if (dest == NULL)
+	{
+		printf("%s\n", get_env(db, "PWD"));
+		return (0);
+	}
+
+	if (chdir(dest))
+		return (eprint(CD_ERR, db, cmd));
+
+	if (cmd[1] && !_strcmp(cmd[1], "-"))
+	{
+		tmp = _strdup(dest);
+		if (tmp == NULL)
+			return(eprint(MALLOC_ERR, db, cmd));
+	}
+	else
+		tmp = dest;
+
+	if (!insert_env(db, "OLDPWD", get_env(db, "PWD")))
+		return (eprint(MALLOC_ERR, db, cmd));
+	if (!insert_env(db, "PWD", tmp))
+		return (eprint(MALLOC_ERR, db, cmd));
+
+	if (tmp != dest)
+	{
+		printf("%s\n", tmp);
+		free(tmp);
+	}
+
+	return (0);
 }
 
 /**
@@ -90,7 +121,7 @@ int bi_setenv(db_t *db, char **cmd)
 		if (cmd[1][i++] == '=')
 			return (eprint(SETENV_ERR2, db, cmd));
 
-	current = insert_env(db, cmd);
+	current = insert_env(db, cmd[0], cmd[1]);
 	if (current == NULL)
 		return (eprint(MALLOC_ERR, db, cmd));
 

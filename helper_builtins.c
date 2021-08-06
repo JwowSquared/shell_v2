@@ -3,15 +3,15 @@
 /**
 * insert_env - creates a new node if needed, else updates old match
 * @db: reference to database struct
-* @cmd: current command being executed
-*
+* @key: key of env to update or add
+* @val: value to be associated with key
 * Return: pointer to new node, else NULL
 */
-env_t *insert_env(db_t *db, char **cmd)
+env_t *insert_env(db_t *db, char *key, char *val)
 {
 	int i = 0;
 	env_t *current, *prev = NULL;
-	char *cat, *key = cmd[1], *val = cmd[2];
+	char *cat;
 
 	cat = malloc(sizeof(char) * (_strlen(key) + _strlen(val) + 2));
 	if (cat == NULL)
@@ -43,10 +43,42 @@ env_t *insert_env(db_t *db, char **cmd)
 	else
 		free(current->s);
 	current->s = cat;
-	if (cmd[2] != NULL)
+	if (val != NULL)
 		sprintf(current->s, "%s=%s", key, val);
 	else
 		sprintf(current->s, "%s=", key);
 
 	return (current);
+}
+
+/**
+* get_env - retrieves the value of an environment variable
+* @db: reference to database struct
+* @key: key to match with value
+*
+* Return: pointer to value, else NULL
+*/
+char *get_env(db_t *db, char *key)
+{
+	int i;
+	env_t *current;
+
+	if (key == NULL)
+		return (NULL);
+
+	current = db->envh;
+	while (current != NULL)
+	{
+		for (i = 0; key[i] != '\0'; i++)
+			if (current->s[i] != key[i])
+				break;
+		if (key[i] == '\0' && current->s[i] == '=')
+			break;
+		current = current->next;
+	}
+
+	if (current == NULL)
+		return (NULL);
+
+	return (&(current->s[i + 1]));
 }
