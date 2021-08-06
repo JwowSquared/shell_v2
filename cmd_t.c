@@ -52,6 +52,94 @@ cmd_t *build_cmd(char *line, char *psep)
 }
 
 /**
+* build2_cmd - converts a command line into a cmd struct
+* @line: command line to convert
+* @psep: the previous separate operator
+*
+* Return: pointer to new struct, else NULL
+*/
+cmd_t *build2_cmd(char *line, char psep)
+{
+	cmd_t *out;
+	int i = 0, len;
+	char c;
+
+	out = malloc(sizeof(cmd_t));
+	if (out == NULL)
+		return (NULL);
+	out->opf = NULL;
+	out->psep = sball2(psep);
+	len = _strlen(line);
+	for (i = 0; i < len; i++)
+	{
+		out->opf = rball2(&line[i]);
+		if (out->opf != NULL)
+		{
+			c = line[i];
+			line[i++] = '\0';
+			if (c == line[i])
+				i++;
+			break;
+		}
+	}
+	out->left = malloc(sizeof(char *) * (count_words(line) + 1));
+	if (out->left == NULL)
+		return (free_cmd(out));
+	out->right = malloc(sizeof(char *) * (count_words(&line[i]) + 1));
+	if (out->right == NULL)
+		return (free_cmd(out));
+
+	cut_line(out, line, &line[i]);
+
+	return (out);
+}
+
+/**
+* cut_line - strtoks left and right into out
+* @out: command struct being built
+* @left: line to cut into left
+* @right: line to cut into right
+*/
+void cut_line(cmd_t *out, char *left, char *right)
+{
+	int i = 0;
+	char *tmp;
+
+	for (i = 0; (tmp = strtok(left, " ")); i++)
+	{
+		left = NULL;
+		out->left[i] = tmp;
+	}
+	out->left[i] = NULL;
+	for (i = 0; (tmp = strtok(right, " ")); i++)
+	{
+		right = NULL;
+		out->right[i] = tmp;
+	}
+	out->right[i] = NULL;
+}
+
+int count_words(char *line)
+{
+	int i = 0, out = 0;
+
+	if (line == NULL || line[0] == '\0')
+		return (0);
+
+	while (line[i] == ' ')
+		i++;
+	while (line[i])
+	{
+		out++;
+		while (line[i] && line[i] != ' ')
+			i++;
+		while (line[i] && line[i] == ' ')
+			i++;
+	}
+	return (out);
+}
+
+/**
 * execute_cmd - executes a command
 * @db: reference to database struct
 * @cmd: double char pointer containing the command to execute
@@ -72,9 +160,9 @@ int execute_cmd(db_t *db, char **cmd)
 		return (eprint(MALLOC_ERR, db, cmd));
 
 	status = check_path(db, cmd);
-	if (status == -1)
+	if (status == -1 && errno != ENOMEM)
 		return (eprint(PATH_ERR, db, cmd));
-	if (status == -2)
+	if (status == -2 || errno == ENOMEM)
 		return (eprint(MALLOC_ERR, db, cmd));
 
 	if (!fork())

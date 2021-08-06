@@ -65,18 +65,10 @@ int check_path(db_t *db, char **cmd)
 	while (name[i])
 		if (name[i++] == '/')
 			match = 1;
-
 	if (match)
-	{
-		i = lstat(name, &st);
-		if (i == -1 && errno == ENOMEM)
-			return (-2);
-		return (i);
-	}
-
+		return (lstat(name, &st));
 	if (path == NULL)
 		return (-1);
-
 	path = _strdup(path);
 	if (path == NULL)
 		return (-2);
@@ -99,11 +91,7 @@ int check_path(db_t *db, char **cmd)
 		if (errno == ENOMEM)
 			break;
 	}
-
 	free(path);
-
-	if (errno == ENOMEM)
-		return (-2);
 	if (out == NULL)
 		return (-1);
 	cmd[0] = out;

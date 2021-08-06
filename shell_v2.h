@@ -81,6 +81,17 @@ typedef struct listcmd_s
 * @op: redirect operator
 * @f: function reference related to the operator
 */
+typedef struct rball2_s
+{
+	char op;
+	int (*f)(db_t *, cmd_t *);
+} rball2_t;
+
+/**
+* struct rball_s - pair of operator and function
+* @op: redirect operator
+* @f: function reference related to the operator
+*/
 typedef struct rball_s
 {
 	char *op;
@@ -97,6 +108,18 @@ typedef struct sball_s
 	char *op;
 	int (*f)(int);
 } sball_t;
+
+
+/**
+* struct sball_s - pair of operator and function
+* @op: separator operator
+* @f: function reference related to the operator
+*/
+typedef struct sball2_s
+{
+	char op;
+	int (*f)(int);
+} sball2_t;
 
 /**
 * struct bball_s - pair of builtin and function
@@ -123,6 +146,8 @@ typedef struct bball_s
 #define PATH_ERR 8
 
 int check_path(db_t *db, char **cmd);
+int count_words(char *line);
+void cut_line(cmd_t *out, char *left, char *right);
 
 /* Database Functions */
 db_t *build_db(char *, char **);
@@ -132,19 +157,24 @@ void *free_db(db_t *);
 
 /* listcmd_t Functions */
 listcmd_t *build_cmds(char *, db_t *);
+listcmd_t *build2_cmds(char *, db_t *);
 char *gen_cmds(listcmd_t *, char *);
+int gen2_cmds(listcmd_t *, char *);
 void execute_list(listcmd_t *);
 void *free_listcmd(listcmd_t *);
 
 /* cmd_t Functions */
 cmd_t *build_cmd(char *, char *);
+cmd_t *build2_cmd(char *, char);
 int execute_cmd(db_t *, char **);
 void *free_cmd(cmd_t *);
 
 /* Gumball Functions */
 int (*rball(char *))(db_t *, cmd_t *);
+int (*rball2(char *))(db_t *, cmd_t *);
 int (*bball(char *))(db_t *, char **);
 int (*sball(char *))(int);
+int (*sball2(char))(int);
 
 /* Builtin Functions */
 int bi_exit(db_t *, char **);

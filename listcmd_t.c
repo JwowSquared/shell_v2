@@ -18,7 +18,8 @@ listcmd_t *build_cmds(char *input, db_t *db)
 	out->db = db;
 	out->head = NULL;
 
-	gen_cmds(out, input);
+	if (gen2_cmds(out, input) == -1)
+		return (free_listcmd(out));
 
 	return (out);
 }
@@ -55,6 +56,48 @@ char *gen_cmds(listcmd_t *list, char *input)
 		return (NULL);
 	}
 	return (tmp);
+}
+
+/**
+* gen_cmds - recursively uses strtok to create a linked list of cmds
+* @list: reference to listcmd struct
+* @input: raw input line, although clipped of the newline at the end
+*
+* Return: -1 on malloc error, else 0
+*/
+int gen2_cmds(listcmd_t *list, char *input)
+{
+	int start = 0, i = 0, len;
+	char c = '\0', psep = '\0';
+	cmd_t *cmd, *prev = NULL;
+
+	len = _strlen(input);
+	while (i < len)
+	{
+		for (start = i; input[i]; i++)
+		{
+			c = input[i];
+			if (c == ';' || c == '&' || (c == '|' && input[i + 1] == '|'))
+			{
+				input[i] = '\0';
+				if (c != ';')
+					i++;
+				break;
+			}
+		}
+		cmd = build2_cmd(&input[start], psep);
+		if (cmd == NULL)
+			return (-1);
+		cmd->next = NULL;
+		if (prev != NULL)
+			prev->next = cmd;
+		else
+			list->head = cmd;
+		prev = cmd;
+		psep = c;
+		i++;
+	}
+	return (0);
 }
 
 /**
