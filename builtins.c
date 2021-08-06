@@ -49,6 +49,7 @@ int bi_cd(db_t *db, char **cmd)
 
 	if (dest == NULL)
 	{
+		if (cmd[1] != NULL)
 		printf("%s\n", get_env(db, "PWD"));
 		return (0);
 	}
