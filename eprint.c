@@ -18,7 +18,7 @@ int eprint(int m, db_t *db, char **cmd)
 		"%s: %d: unsetenv: key cant be missing\n",
 		"%s: %d: unsetenv: key not found\n",
 		"%s: 0: database malloc failed, exiting\n",
-		"%s: %d: cd: cant cd to %s\n",
+		"%s: %d: cd: can't cd to %s\n",
 		"%s: %d: %s: not found\n",
 		NULL
 	};
