@@ -125,9 +125,6 @@ int bi_setenv(db_t *db, char **cmd)
 	if (current == NULL)
 		return (eprint(MALLOC_ERR, db, cmd));
 
-	db->h_diff = 1;
-	db->h_size++;
-
 	return (0);
 }
 
