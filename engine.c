@@ -66,13 +66,16 @@ int check_path(db_t *db, char **cmd)
 		if (name[i++] == '/')
 			match = 1;
 
-	if (match || path == NULL)
+	if (match)
 	{
 		i = lstat(name, &st);
 		if (i == -1 && errno == ENOMEM)
 			return (-2);
 		return (i);
 	}
+
+	if (path == NULL)
+		return (-1);
 
 	path = _strdup(path);
 	if (path == NULL)
