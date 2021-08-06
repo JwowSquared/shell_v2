@@ -8,33 +8,8 @@
 */
 int (*rball(char *op))(db_t *, cmd_t *)
 {
-	int i;
-	rball_t pot[] = {
-		{">", &op_write},
-		{">>", &op_append},
-		{"<", &op_read},
-		{"<<", &op_heredoc},
-		{"|", &op_pipe},
-		{NULL, NULL}
-	};
-
-	for (i = 0; pot[i].op != NULL; i++)
-		if (!_strcmp(pot[i].op, op))
-			return (pot[i].f);
-
-	return (NULL);
-}
-
-/**
-* rball2 - returns the proper function based on the given redirect
-* @op: string to compare against the gumballs
-*
-* Return: function pointer that handles that specific operator
-*/
-int (*rball2(char *op))(db_t *, cmd_t *)
-{
 	int i = 0;
-	rball2_t pot[] = {
+	rball_t pot[] = {
 		{'>', &op_write},
 		{'>', &op_append},
 		{'<', &op_read},
@@ -56,40 +31,14 @@ int (*rball2(char *op))(db_t *, cmd_t *)
 
 /**
 * sball - returns the proper function based on the given separator
-* @op: string to compare against the gumballs
+* @op: char to compare against the gumballs
 *
 * Return: function pointer that handles that specific operator
 */
-int (*sball(char *op))(int)
+int (*sball(char op))(int)
 {
 	int i;
 	sball_t pot[] = {
-		{";", &op_semi},
-		{"||", &op_or},
-		{"&&", &op_and},
-		{NULL, NULL}
-	};
-
-	if (op == NULL)
-		return (NULL);
-
-	for (i = 0; pot[i].op != NULL; i++)
-		if (!_strcmp(pot[i].op, op))
-			return (pot[i].f);
-
-	return (NULL);
-}
-
-/**
-* sball2 - returns the proper function based on the given separator
-* @op: string to compare against the gumballs
-*
-* Return: function pointer that handles that specific operator
-*/
-int (*sball2(char op))(int)
-{
-	int i;
-	sball2_t pot[] = {
 		{';', &op_semi},
 		{'|', &op_or},
 		{'&', &op_and},
