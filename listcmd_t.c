@@ -85,7 +85,7 @@ void execute_list(listcmd_t *list)
 		if (tmp->psep != NULL && (*tmp->psep)(list->db->pstat))
 			continue;
 		if (tmp->opf != NULL)
-			tmp->opf(list->db, tmp);
+			list->db->pstat = tmp->opf(list->db, tmp);
 		else
 			list->db->pstat = execute_cmd(list->db, tmp->left);
 	}

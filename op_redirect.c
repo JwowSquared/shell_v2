@@ -63,6 +63,9 @@ int op_read(db_t *db, cmd_t *cmd)
 
 	saved = dup(0);
 	fd = open(cmd->right[0], O_RDONLY);
+	if (fd == -1)
+		return (eprint(READ_ERR, db, cmd->right));
+
 	dup2(fd, 0);
 
 	code = execute_cmd(db, cmd->left);

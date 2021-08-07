@@ -123,6 +123,7 @@ typedef struct bball_s
 #define CD_ERR 6
 #define DB_ERR 7
 #define PATH_ERR 8
+#define READ_ERR 9
 
 
 

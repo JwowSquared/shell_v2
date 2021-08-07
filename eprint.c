@@ -10,7 +10,7 @@
 */
 int eprint(int m, db_t *db, char **cmd)
 {
-	int c[] = {2, 2, 2, 2, 2, 2, 2, 2, 127};
+	int c[] = {2, 2, 2, 2, 2, 2, 2, 2, 127, 2};
 	char *f[] = {
 		"%s: %d: malloc failed, exiting\n",
 		"%s: %d: setenv: key cant be missing\n",
@@ -21,6 +21,7 @@ int eprint(int m, db_t *db, char **cmd)
 		"%s: %d: cd: can't cd to %s\n",
 		"%s: 0: database malloc failed, exiting\n",
 		"%s: %d: %s: not found\n",
+		"%s: %d: cannot open %s: No such file\n",
 		NULL
 	};
 
@@ -33,7 +34,7 @@ int eprint(int m, db_t *db, char **cmd)
 		return (vfeprint(c[m], f[m], db->pname, db->ln, cmd[1]));
 	if (m == DB_ERR)
 		return (vfeprint(c[m], f[m], cmd[0]));
-	if (m == PATH_ERR)
+	if (m <= READ_ERR)
 		return (vfeprint(c[m], f[m], db->pname, db->ln, cmd[0]));
 
 	return (-1);
