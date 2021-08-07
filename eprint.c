@@ -10,65 +10,51 @@
 */
 int eprint(int m, db_t *db, char **cmd)
 {
-	char *e[] = {
+	int c[] = {2, 2, 2, 2, 2, 2, 2, 2, 127};
+	char *f[] = {
 		"%s: %d: malloc failed, exiting\n",
-		"%s: %d: exit: Illegal number: %s\n",
 		"%s: %d: setenv: key cant be missing\n",
 		"%s: %d: setenv: key cant contain '='\n",
 		"%s: %d: unsetenv: key cant be missing\n",
 		"%s: %d: unsetenv: key not found\n",
-		"%s: 0: database malloc failed, exiting\n",
+		"%s: %d: exit: Illegal number: %s\n",
 		"%s: %d: cd: can't cd to %s\n",
+		"%s: 0: database malloc failed, exiting\n",
 		"%s: %d: %s: not found\n",
 		NULL
 	};
 
-	if (m == MALLOC_ERR) /* notably, signals toexit */
-	{
+	if (m == MALLOC_ERR)
 		db->toexit = 1;
-		fprintf(stderr, e[m], db->pname, db->ln);
-		return (2);
-	}
-	if (m == EXIT_ERR) /* notably, cmd[1] is used */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln, cmd[1]);
-		return (2);
-	}
-	if (m == CD_ERR) /* notably, cmd[1] is used */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln, cmd[1]);
-		return (2);
-	}
-	if (m == SETENV_ERR1) /* default */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln);
-		return (2);
-	}
-	if (m == SETENV_ERR2) /* default */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln);
-		return (2);
-	}
-	if (m == UNSET_ERR1) /* default */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln);
-		return (2);
-	}
-	if (m == UNSET_ERR2) /* default */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln);
-		return (2);
-	}
-	if (m == DB_ERR) /* notably, db is NULL */
-	{
-		fprintf(stderr, e[m], cmd[0]);
-		return (2);
-	}
-	if (m == PATH_ERR) /* could be default */
-	{
-		fprintf(stderr, e[m], db->pname, db->ln, cmd[0]);
-		return (127);
-	}
+
+	if (m <= UNSET_ERR2)
+		return (vfeprint(c[m], f[m], db->pname, db->ln));
+	if (m <= CD_ERR)
+		return (vfeprint(c[m], f[m], db->pname, db->ln, cmd[1]));
+	if (m == DB_ERR)
+		return (vfeprint(c[m], f[m], cmd[0]));
+	if (m == PATH_ERR)
+		return (vfeprint(c[m], f[m], db->pname, db->ln, cmd[0]));
 
 	return (-1);
+}
+
+/**
+* vfeprint - prints using vfprintf and returns code
+* @code: return value
+* @format: format string for vfprintf
+*
+* Return: code
+*/
+int vfeprint(int code, char *format, ...)
+{
+	va_list args;
+
+	va_start(args, format);
+
+	vfprintf(stderr, format, args);
+
+	va_end(args);
+
+	return (code);
 }
