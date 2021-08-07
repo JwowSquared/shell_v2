@@ -10,6 +10,7 @@
 #include <sys/wait.h>
 #include <errno.h>
 #include <stdarg.h>
+#include <fcntl.h>
 
 /**
 * struct env_s - linked list representation of env

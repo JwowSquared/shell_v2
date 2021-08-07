@@ -9,19 +9,23 @@
 */
 int op_write(db_t *db, cmd_t *cmd)
 {
-	int i;
+	int saved, fd, code;
 
-	(void)db;
+	saved = dup(1);
+	fd = open(cmd->right[0], (O_WRONLY | O_CREAT | O_TRUNC));
+	if (dup2(fd, 1) == -1)
+	{
+		printf("uh oh\n");
+		return (2);
+	}
+	code = execute_cmd(db, cmd->left);
 
-	for (i = 0; cmd->left[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->left[i]);
+	close(fd);
 
-	for (i = 0; cmd->right[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->right[i]);
+	dup2(saved, 1);
+	close(saved);
 
-	printf("For use with [>]\n");
-
-	return (1);
+	return (code);
 }
 
 /**
@@ -33,19 +37,23 @@ int op_write(db_t *db, cmd_t *cmd)
 */
 int op_append(db_t *db, cmd_t *cmd)
 {
-	int i;
+	int saved, fd, code;
 
-	(void)db;
+	saved = dup(1);
+	fd = open(cmd->right[0], (O_WRONLY | O_CREAT | O_APPEND));
+	if (dup2(fd, 1) == -1)
+	{
+		printf("uh oh\n");
+		return (2);
+	}
+	code = execute_cmd(db, cmd->left);
 
-	for (i = 0; cmd->left[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->left[i]);
+	close(fd);
 
-	for (i = 0; cmd->right[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->right[i]);
+	dup2(saved, 1);
+	close(saved);
 
-	printf("For use with [>>]\n");
-
-	return (1);
+	return (code);
 }
 
 /**
