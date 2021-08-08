@@ -111,37 +111,42 @@ int op_heredoc(db_t *db, cmd_t *cmd)
 */
 int op_pipe(db_t *db, cmd_t *cmd)
 {
-	int status, saved_out, saved_in;
-	int pipefd[2];
+	int status, left_flag = 0, right_flag = 0;
+	char *left = NULL, *right = NULL;
 
-	pipe(pipefd);
+	db->env = format_env(db);
+	if (db->env == NULL)
+		return (eprint(MALLOC_ERR, db, NULL));
 
-	if (!fork())
+	status = check_path(db, cmd->left[0], &left);
+	if (status == -1 && errno != ENOMEM)
+		return (eprint(PATH_ERR, db, cmd->left));
+	if (status == -2 || errno == ENOMEM)
+		return (eprint(MALLOC_ERR, db, cmd->left));
+
+	status = check_path(db, cmd->right[0], &right);
+	if (status == -1 && errno != ENOMEM)
+		return (eprint(PATH_ERR, db, cmd->right));
+	if (status == -2 || errno == ENOMEM)
+		return (eprint(MALLOC_ERR, db, cmd->right));
+
+	if (left == NULL)
 	{
-		close(pipefd[0]);
-		saved_out = dup(1);
-		dup2(pipefd[1], 1);
-		status = execute_cmd(db, cmd->left);
-		close(pipefd[1]);
-		dup2(saved_out, 1);
-		close(saved_out);
-		_exit(status);
+		left = cmd->left[0];
+		left_flag = 1;
 	}
-	else
+	if (right == NULL)
 	{
-		wait(&status);
-		close(pipefd[1]);
-		if (WEXITSTATUS(status) != 0)
-		{
-			close(pipefd[0]);
-			return (status);
-		}
-		saved_in = dup(0);
-		dup2(pipefd[0], 0);
-		status = execute_cmd(db, cmd->right);
-		close(pipefd[0]);
-		dup2(saved_in, 0);
-		close(saved_in);
+		right = cmd->right[0];
+		right_flag = 1;
 	}
+
+	status = execute_pipe(db, cmd, left, right);
+
+	if (left_flag == 0)
+		free(left);
+	if (right_flag == 0)
+		free(right);
+
 	return (status);
 }

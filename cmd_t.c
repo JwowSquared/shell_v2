@@ -52,8 +52,9 @@ cmd_t *build_cmd(char *line, char psep)
 */
 int execute_cmd(db_t *db, char **cmd)
 {
-	int status;
+	int status, path_flag = 0;
 	int (*bi)(db_t *, char **);
+	char *path = NULL;
 
 	bi = bball(cmd[0]);
 	if (bi != NULL)
@@ -66,23 +67,28 @@ int execute_cmd(db_t *db, char **cmd)
 	if (cmd[0] == NULL)
 		return (0);
 
-	status = check_path(db, cmd);
+	status = check_path(db, cmd[0], &path);
 	if (status == -1 && errno != ENOMEM)
 		return (eprint(PATH_ERR, db, cmd));
 	if (status == -2 || errno == ENOMEM)
 		return (eprint(MALLOC_ERR, db, cmd));
 
+	if (path == NULL)
+	{
+		path = cmd[0];
+		path_flag = 1;
+	}
+
 	if (!fork())
 	{
-		execve(cmd[0], cmd, db->env);
+		execve(path, cmd, db->env);
 		perror(NULL);
 		exit(2);
 	}
 	wait(&status);
 
-	if (db->p_diff)
-		free(cmd[0]);
-	db->p_diff = 0;
+	if (path_flag == 0)
+		free(path);
 
 	return (WEXITSTATUS(status));
 }

@@ -145,7 +145,8 @@ int execute_cmd(db_t *, char **);
 void *free_cmd(cmd_t *);
 
 /* cmd_t Helpers */
-int check_path(db_t *, char **);
+int execute_pipe(db_t *, cmd_t *, char *, char *);
+int check_path(db_t *, char *, char **);
 int count_words(char *);
 void cut_line(cmd_t *, char *, char *);
 

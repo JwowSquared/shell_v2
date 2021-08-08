@@ -1,17 +1,62 @@
 #include "shell_v2.h"
 
 /**
+* execute_pipe - used with the | redirect operator
+* @db: reference to database struct
+* @cmd: current cmd being executed
+* @left: path of left command for use with execve
+* @right: path of right command for use with execve
+*
+* Return: 0 on success, else proper error code
+*/
+int execute_pipe(db_t *db, cmd_t *cmd, char *left, char *right)
+{
+	int status, saved_out, saved_in;
+	int pipefd[2];
+
+	saved_out = dup(1);
+	saved_in = dup(0);
+	if (!fork())
+	{
+		pipe(pipefd);
+		if (!fork())
+		{
+			close(pipefd[0]);
+			dup2(pipefd[1], 1);
+			execve(left, cmd->left, db->env); /* 1st command */
+			perror(NULL);
+			_exit(2);
+		}
+		wait(&status);
+		dup2(saved_out, 1);
+		close(saved_out);
+		if (WEXITSTATUS(status) == 2)
+			_exit(2);
+		close(pipefd[1]);
+		dup2(pipefd[0], 0);
+		execve(right, cmd->right, db->env); /* 2nd command */
+		perror(NULL);
+		_exit(2);
+	}
+	wait(&status);
+	dup2(saved_in, 0);
+	close(saved_in);
+	return (0);
+}
+
+/**
 * check_path - determines if the command exists in the path
 * @db: reference to database struct
-* @cmd: current command being executed
+* @name: current path to be checked
+* @buf: buffer for new string to be stored in
 *
 * Return: 0 on success, -1 when not found, -2 on malloc error
 */
-int check_path(db_t *db, char **cmd)
+int check_path(db_t *db, char *name, char **buf)
 {
 	struct stat st;
 	int i = 0, match = 0;
-	char *slice, *out = NULL, *p, *name = cmd[0], *path = get_env(db, "PATH");
+	char *slice, *out = NULL, *p, *path = get_env(db, "PATH");
 
 	while (name[i])
 		if (name[i++] == '/')
@@ -45,8 +90,8 @@ int check_path(db_t *db, char **cmd)
 	free(path);
 	if (out == NULL)
 		return (-1);
-	cmd[0] = out;
-	db->p_diff = 1;
+	*buf = out;
+
 	return (0);
 }
 
