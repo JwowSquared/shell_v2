@@ -111,17 +111,37 @@ int op_heredoc(db_t *db, cmd_t *cmd)
 */
 int op_pipe(db_t *db, cmd_t *cmd)
 {
-	int i;
+	int status, saved_out, saved_in;
+	int pipefd[2];
 
-	(void)db;
+	pipe(pipefd);
 
-	for (i = 0; cmd->left[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->left[i]);
-
-	for (i = 0; cmd->right[i] != NULL; i++)
-		printf("%d: [%s]\n", i, cmd->right[i]);
-
-	printf("For use with [|]\n");
-
-	return (1);
+	if (!fork())
+	{
+		close(pipefd[0]);
+		saved_out = dup(1);
+		dup2(pipefd[1], 1);
+		status = execute_cmd(db, cmd->left);
+		close(pipefd[1]);
+		dup2(saved_out, 1);
+		close(saved_out);
+		_exit(status);
+	}
+	else
+	{
+		wait(&status);
+		close(pipefd[1]);
+		if (WEXITSTATUS(status) != 0)
+		{
+			close(pipefd[0]);
+			return (status);
+		}
+		saved_in = dup(0);
+		dup2(pipefd[0], 0);
+		status = execute_cmd(db, cmd->right);
+		close(pipefd[0]);
+		dup2(saved_in, 0);
+		close(saved_in);
+	}
+	return (status);
 }
