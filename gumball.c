@@ -6,7 +6,7 @@
 *
 * Return: function pointer that handles that specific operator
 */
-int (*rball(char *op))(db_t *, cmd_t *)
+int (*rball(char *op))(db_t *, arg_t *)
 {
 	int i = 0;
 	rball_t pot[] = {

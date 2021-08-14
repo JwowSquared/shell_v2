@@ -24,6 +24,19 @@ typedef struct env_s
 } env_t;
 
 /**
+* struct arg_s - linked list containing tokenized command args
+* @av: tokenized command args, NULL terminated. for use with execve
+* @next: next node
+*/
+typedef struct arg_s
+{
+	char **av;
+	char *path;
+	int check_path;
+	struct arg_s *next;
+} arg_t;
+
+/**
 * struct db_s - database representing the current environment
 * @pname: program name
 * @ln: line number used for error printing
@@ -47,7 +60,6 @@ typedef struct db_s
 	env_t *envh;
 	int h_size;
 	int h_diff;
-	int p_diff;
 } db_t;
 
 /**
@@ -60,10 +72,9 @@ typedef struct db_s
 */
 typedef struct cmd_s
 {
-	char **left;
-	char **right;
+	arg_t *head;
 	int (*psep)(int);
-	int (*opf)(db_t *, struct cmd_s *);
+	int (*opf)(db_t *, arg_t *);
 	struct cmd_s *next;
 } cmd_t;
 
@@ -86,7 +97,7 @@ typedef struct listcmd_s
 typedef struct rball_s
 {
 	char op;
-	int (*f)(db_t *, cmd_t *);
+	int (*f)(db_t *, arg_t *);
 } rball_t;
 
 /**
@@ -125,7 +136,9 @@ typedef struct bball_s
 #define PATH_ERR 8
 #define READ_ERR 9
 
-
+int execute_arg(db_t *, arg_t *);
+arg_t *build_arg(char *, db_t *);
+int setup_path(arg_t *, db_t *);
 
 /* Database Functions */
 db_t *build_db(char *, char **);
@@ -140,7 +153,7 @@ void execute_list(listcmd_t *);
 void *free_listcmd(listcmd_t *);
 
 /* cmd_t Functions */
-cmd_t *build_cmd(char *, char);
+cmd_t *build_cmd(db_t *, char *, char);
 int execute_cmd(db_t *, char **);
 void *free_cmd(cmd_t *);
 
@@ -151,7 +164,7 @@ int count_words(char *);
 void cut_line(cmd_t *, char *, char *);
 
 /* Gumball Functions */
-int (*rball(char *))(db_t *, cmd_t *);
+int (*rball(char *))(db_t *, arg_t *);
 int (*bball(char *))(db_t *, char **);
 int (*sball(char))(int);
 
@@ -167,11 +180,11 @@ env_t *insert_env(db_t *, char *, char *);
 char *get_env(db_t *, char *);
 
 /* Redirect Functions */
-int op_write(db_t *, cmd_t *);
-int op_append(db_t *, cmd_t *);
-int op_read(db_t *, cmd_t *);
-int op_heredoc(db_t *, cmd_t *);
-int op_pipe(db_t *, cmd_t *);
+int op_write(db_t *, arg_t *);
+int op_append(db_t *, arg_t *);
+int op_read(db_t *, arg_t *);
+int op_heredoc(db_t *, arg_t *);
+int op_pipe(db_t *, arg_t *);
 
 /* Separator Functions */
 int op_semi(int);

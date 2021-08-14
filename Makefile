@@ -1,8 +1,8 @@
 all: hsh
 
 files = \
+temp.c \
 cmd_t.c \
-helper_cmd_t.c \
 engine.c \
 gumball.c \
 listcmd_t.c \

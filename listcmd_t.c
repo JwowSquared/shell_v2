@@ -51,7 +51,7 @@ int gen_cmds(listcmd_t *list, char *input)
 				break;
 			}
 		}
-		cmd = build_cmd(&input[start], psep);
+		cmd = build_cmd(list->db, &input[start], psep);
 		if (cmd == NULL)
 			return (-1);
 		cmd->next = NULL;
@@ -85,9 +85,9 @@ void execute_list(listcmd_t *list)
 		if (tmp->psep != NULL && (*tmp->psep)(list->db->pstat))
 			continue;
 		if (tmp->opf != NULL)
-			list->db->pstat = tmp->opf(list->db, tmp);
+			list->db->pstat = tmp->opf(list->db, tmp->head);
 		else
-			list->db->pstat = execute_cmd(list->db, tmp->left);
+			list->db->pstat = execute_arg(list->db, tmp->head);
 	}
 }
 

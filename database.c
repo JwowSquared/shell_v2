@@ -27,7 +27,7 @@ db_t *build_db(char *pname, char **env)
 
 	db->a_max = 0;
 	db->h_diff = 1;
-	db->p_diff = 0;
+
 	return (db);
 }
 
