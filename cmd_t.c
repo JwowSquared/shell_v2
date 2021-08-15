@@ -117,6 +117,9 @@ int setup_path(arg_t *arg, db_t *db)
 	int i = 0;
 	char *slice, *out = NULL, *p, *name = arg->av[0], *path = get_env(db, "PATH");
 
+	if (name == NULL)
+		return (0);
+
 	while (name[i])
 		if (name[i++] == '/')
 			return (lstat(name, &st));
