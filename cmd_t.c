@@ -2,6 +2,7 @@
 
 /**
 * build_cmd - converts a command line into a cmd struct
+* @db: reference to database struct
 * @line: command line to convert
 * @psep: the previous separate operator
 *
@@ -55,6 +56,7 @@ cmd_t *build_cmd(db_t *db, char *line, char psep)
 /**
 * build_arg - builds an arg_t linked list node
 * @line: line to split into an array of tokens
+* @db: reference to database struct
 *
 * Return: pointer to new struct, else NULL
 */
@@ -78,12 +80,12 @@ arg_t *build_arg(char *line, db_t *db)
 		return (NULL);
 	}
 
-        for (i = 0; (tmp = strtok(line, " ")); i++)
-        {
-                line = NULL;
-                out->av[i] = tmp;
-        }
-        out->av[i] = NULL;
+	for (i = 0; (tmp = strtok(line, " ")); i++)
+	{
+		line = NULL;
+		out->av[i] = tmp;
+	}
+	out->av[i] = NULL;
 
 	out->check_path = setup_path(out, db);
 	if (out->check_path == -2 || errno == ENOMEM)
@@ -107,7 +109,7 @@ arg_t *build_arg(char *line, db_t *db)
 * @arg: arg struct to determine file name and store path
 * @db: reference to database struct, used for get_env
 *
-* Return: 0 on path sucess, -1 on path fail or lstat malloc fail, -2 on malloc fail
+* Return: 0 on sucess, -1 on path fail or lstat malloc fail, -2 on malloc fail
 */
 int setup_path(arg_t *arg, db_t *db)
 {
@@ -152,7 +154,7 @@ int setup_path(arg_t *arg, db_t *db)
 /**
 * execute_arg - executes a command
 * @db: reference to database struct
-* @cmd: double char pointer containing the command to execute
+* @arg: current arg struct being executed
 *
 * Return: status code of command that was executed
 */

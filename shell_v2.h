@@ -26,6 +26,8 @@ typedef struct env_s
 /**
 * struct arg_s - linked list containing tokenized command args
 * @av: tokenized command args, NULL terminated. for use with execve
+* @path: absolute path of command to be plugged into execve
+* @check_path: status code of path, -1 for path fail, 1 for given, else 0
 * @next: next node
 */
 typedef struct arg_s
@@ -47,7 +49,6 @@ typedef struct arg_s
 * @envh: head of a linked list representation of the environment variables
 * @h_size: the current number of nodes in the envh linked list
 * @h_diff: flag set to mark that envh has been updated
-* @p_diff: flag set to mark that a path has been prepended to cmd
 */
 typedef struct db_s
 {
@@ -64,8 +65,7 @@ typedef struct db_s
 
 /**
 * struct cmd_s - linked list node that holds all info for command execution
-* @left: tokenized array of args left of redirect operator
-* @right: tokenized array of args right of redirect operator
+* @head: linked list of argument groups
 * @psep: function reference to the separate operator
 * @opf: function reference to the redirect operator
 * @next: reference to next cmd in the linked list
@@ -138,9 +138,7 @@ typedef struct bball_s
 #define PATH_ERR 8
 #define READ_ERR 9
 
-int execute_arg(db_t *, arg_t *);
-arg_t *build_arg(char *, db_t *);
-int setup_path(arg_t *, db_t *);
+
 
 /* Database Functions */
 db_t *build_db(char *, char **);
@@ -156,19 +154,15 @@ void *free_listcmd(listcmd_t *);
 
 /* cmd_t Functions */
 cmd_t *build_cmd(db_t *, char *, char);
-int execute_cmd(db_t *, char **);
+arg_t *build_arg(char *, db_t *);
+int setup_path(arg_t *, db_t *);
+int execute_arg(db_t *, arg_t *);
 void *free_cmd(cmd_t *);
-
-/* cmd_t Helpers */
-int execute_pipe(db_t *, cmd_t *, char *, char *);
-int check_path(db_t *, char *, char **);
-int count_words(char *);
-void cut_line(cmd_t *, char *, char *);
 
 /* Gumball Functions */
 int (*rball(char *))(db_t *, arg_t *);
-int (*bball(char *))(db_t *, char **);
 int (*sball(char))(int);
+int (*bball(char *))(db_t *, char **);
 
 /* Builtin Functions */
 int bi_exit(db_t *, char **);
@@ -193,10 +187,12 @@ int op_semi(int);
 int op_or(int);
 int op_and(int);
 
-/* String Functions */
+/* Misc Helpers */
 int _strcmp(char *, char *);
 char *_strdup(char *);
 int _strlen(char *);
+int count_words(char *);
+void close_all(int (*)[2], int);
 
 /* Error Handling */
 int eprint(int, db_t *, char **);

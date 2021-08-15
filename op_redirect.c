@@ -3,7 +3,7 @@
 /**
 * op_write - > redirect
 * @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @arg: current arg list head to execute
 *
 * Return: 0 on success, else error code is returned
 */
@@ -28,7 +28,7 @@ int op_write(db_t *db, arg_t *arg)
 /**
 * op_append - >> redirect
 * @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @arg: current arg list head to execute
 *
 * Return: 0 on success, else error code is returned
 */
@@ -53,7 +53,7 @@ int op_append(db_t *db, arg_t *arg)
 /**
 * op_read - < redirect
 * @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @arg: current arg list head to execute
 *
 * Return: 0 on success, else error code is returned
 */
@@ -81,7 +81,7 @@ int op_read(db_t *db, arg_t *arg)
 /**
 * op_heredoc - << redirect
 * @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @arg: current arg list head to execute
 *
 * Return: 0 on success, else error code is returned
 */
@@ -107,58 +107,50 @@ int op_heredoc(db_t *db, arg_t *arg)
 /**
 * op_pipe - | redirect
 * @db: reference to database struct
-* @cmd: current cmd struct to execute
+* @arg: current arg list head to execute
 *
 * Return: 0 on success, else error code is returned
 */
 int op_pipe(db_t *db, arg_t *arg)
 {
-	int status, (*pipes)[2], num_pipes, i, j;
+	int status, (*pipes)[2];
+	int num_pipes = 0, i = 0, j, wpid, code = 0;
 	arg_t *current;
 
 	db->env = format_env(db);
 	if (db->env == NULL)
 		return (eprint(MALLOC_ERR, db, NULL));
-
-	current = arg;
-	for (num_pipes = 0; current != NULL; num_pipes++)
+	for (current = arg; current != NULL; num_pipes++)
 		current = current->next;
-
 	pipes = malloc(sizeof(int[2]) * num_pipes);
 	if (pipes == NULL)
 		return (eprint(MALLOC_ERR, db, NULL));
-
-	for (i = 0; i < num_pipes; i++)
-		pipe(pipes[i]);
-
-	current = arg;
-	for (i = 0; i < num_pipes; i++)
+	for (j = 0; j < num_pipes; j++)
+		pipe(pipes[j]);
+	for (current = arg; i < num_pipes; i++)
 	{
-		if (!fork())
+		if (current->check_path == -1)
+		{
+			eprint(PATH_ERR, db, current->av);
+			if (i + 1 == num_pipes)
+				code = 127;
+		}
+		else if (!fork())
 		{
 			if (i != 0)
 				dup2(pipes[i - 1][READ], STDIN_FILENO);
 			if (i + 1 != num_pipes)
 				dup2(pipes[i][WRITE], STDOUT_FILENO);
-			for (j = 0; j < num_pipes; j++)
-			{
-				close(pipes[j][0]);
-				close(pipes[j][1]);
-			}
-			if (current->check_path == -1)
-				_exit(eprint(PATH_ERR, db, current->av));
+			close_all(pipes, num_pipes);
 			execve(current->path, current->av, db->env);
 			perror(NULL);
 			_exit(2);
 		}
 		current = current->next;
 	}
-	for (i = 0; i < num_pipes; i++)
-	{
-		close(pipes[i][0]);
-		close(pipes[i][1]);
-		wait(&status);
-	}
+	close_all(pipes, num_pipes);
+	for (wpid = wait(&status); wpid > 0;)
+		wpid = wait(&status);
 	free(pipes);
-	return (WEXITSTATUS(status));
+	return (code == 127 ? 127 : WEXITSTATUS(status));
 }
