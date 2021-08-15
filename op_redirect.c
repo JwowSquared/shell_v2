@@ -113,58 +113,52 @@ int op_heredoc(db_t *db, arg_t *arg)
 */
 int op_pipe(db_t *db, arg_t *arg)
 {
-	int i;
+	int status, (*pipes)[2], i, j, k;
 	arg_t *current;
-
-	(void)db;
-
-	current = arg;
-	while (current != NULL)
-	{
-		for (i = 0; current->av[i] != NULL; i++)
-			printf("%d: [%s]\n", i, current->av[i]);
-		current = current->next;
-	}
-	printf("For use with [|]\n");
-
-	return (1);
-/*	int status, left_flag = 0, right_flag = 0;
-	char *left = NULL, *right = NULL;
 
 	db->env = format_env(db);
 	if (db->env == NULL)
 		return (eprint(MALLOC_ERR, db, NULL));
 
-	status = check_path(db, cmd->left[0], &left);
-	if (status == -1 && errno != ENOMEM)
-		return (eprint(PATH_ERR, db, cmd->left));
-	if (status == -2 || errno == ENOMEM)
-		return (eprint(MALLOC_ERR, db, cmd->left));
+	current = arg;
+	for (i = 0; current != NULL; i++)
+		current = current->next;
 
-	status = check_path(db, cmd->right[0], &right);
-	if (status == -1 && errno != ENOMEM)
-		return (eprint(PATH_ERR, db, cmd->right));
-	if (status == -2 || errno == ENOMEM)
-		return (eprint(MALLOC_ERR, db, cmd->right));
+	pipes = malloc(sizeof(int[2]) * i);
+	if (pipes == NULL)
+		return (eprint(MALLOC_ERR, db, NULL));
 
-	if (left == NULL)
+	for (j = 0; j < i; j++)
+		pipe(pipes[j]);
+
+	current = arg;
+	for (j = 0; j < i; j++)
 	{
-		left = cmd->left[0];
-		left_flag = 1;
+		if (current->check_path == -1)
+			status = eprint(PATH_ERR, db, current->av); /* current->path ?? */
+		else if (!fork())
+		{
+			if (j != 0)
+				dup2(pipes[j - 1][READ], STDIN_FILENO);
+			if (j + 1 != i)
+				dup2(pipes[j][WRITE], STDOUT_FILENO);
+			for (k = 0; k < i; k++)
+			{
+				close(pipes[k][0]);
+				close(pipes[k][1]);
+			}
+			execve(current->path, current->av, db->env);
+			perror(NULL);
+			_exit(2);
+		}
+		current = current->next;
 	}
-	if (right == NULL)
+	for (k = 0; k < i; k++)
 	{
-		right = cmd->right[0];
-		right_flag = 1;
+		close(pipes[k][0]);
+		close(pipes[k][1]);
+		wait(&status);
 	}
-
-	status = execute_pipe(db, cmd, left, right);
-
-	if (left_flag == 0)
-		free(left);
-	if (right_flag == 0)
-		free(right);
-
-	return (status);
-*/
+	free(pipes);
+	return (WEXITSTATUS(status));
 }

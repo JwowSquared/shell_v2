@@ -122,7 +122,9 @@ typedef struct bball_s
 	int (*f)(db_t *, char **);
 } bball_t;
 
-
+/* Pipe Macros */
+#define READ 0
+#define WRITE 1
 
 /* Custom Error Macros */
 #define MALLOC_ERR 0

@@ -13,6 +13,7 @@ cmd_t *build_cmd(db_t *db, char *line, char psep)
 	arg_t *prev = NULL, *current;
 	int i = 0, s, len;
 	char c;
+	int (*opf)(db_t *, arg_t *);
 
 	out = malloc(sizeof(cmd_t));
 	if (out == NULL)
@@ -25,9 +26,10 @@ cmd_t *build_cmd(db_t *db, char *line, char psep)
 	{
 		for (s = i; i < len; i++)
 		{
-			out->opf = rball(&line[i]);
-			if (out->opf != NULL)
+			opf = rball(&line[i]);
+			if (opf != NULL)
 			{
+				out->opf = opf;
 				c = line[i];
 				line[i] = '\0';
 				if (c == line[i + 1])
