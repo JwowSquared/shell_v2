@@ -113,7 +113,7 @@ int op_heredoc(db_t *db, arg_t *arg)
 */
 int op_pipe(db_t *db, arg_t *arg)
 {
-	int status, (*pipes)[2], i, j, k;
+	int status, (*pipes)[2], num_pipes, i, j;
 	arg_t *current;
 
 	db->env = format_env(db);
@@ -121,42 +121,42 @@ int op_pipe(db_t *db, arg_t *arg)
 		return (eprint(MALLOC_ERR, db, NULL));
 
 	current = arg;
-	for (i = 0; current != NULL; i++)
+	for (num_pipes = 0; current != NULL; num_pipes++)
 		current = current->next;
 
-	pipes = malloc(sizeof(int[2]) * i);
+	pipes = malloc(sizeof(int[2]) * num_pipes);
 	if (pipes == NULL)
 		return (eprint(MALLOC_ERR, db, NULL));
 
-	for (j = 0; j < i; j++)
-		pipe(pipes[j]);
+	for (i = 0; i < num_pipes; i++)
+		pipe(pipes[i]);
 
 	current = arg;
-	for (j = 0; j < i; j++)
+	for (i = 0; i < num_pipes; i++)
 	{
-		if (current->check_path == -1)
-			status = eprint(PATH_ERR, db, current->av); /* current->path ?? */
-		else if (!fork())
+		if (!fork())
 		{
-			if (j != 0)
-				dup2(pipes[j - 1][READ], STDIN_FILENO);
-			if (j + 1 != i)
-				dup2(pipes[j][WRITE], STDOUT_FILENO);
-			for (k = 0; k < i; k++)
+			if (i != 0)
+				dup2(pipes[i - 1][READ], STDIN_FILENO);
+			if (i + 1 != num_pipes)
+				dup2(pipes[i][WRITE], STDOUT_FILENO);
+			for (j = 0; j < num_pipes; j++)
 			{
-				close(pipes[k][0]);
-				close(pipes[k][1]);
+				close(pipes[j][0]);
+				close(pipes[j][1]);
 			}
+			if (current->check_path == -1)
+				_exit(eprint(PATH_ERR, db, current->av));
 			execve(current->path, current->av, db->env);
 			perror(NULL);
 			_exit(2);
 		}
 		current = current->next;
 	}
-	for (k = 0; k < i; k++)
+	for (i = 0; i < num_pipes; i++)
 	{
-		close(pipes[k][0]);
-		close(pipes[k][1]);
+		close(pipes[i][0]);
+		close(pipes[i][1]);
 		wait(&status);
 	}
 	free(pipes);
