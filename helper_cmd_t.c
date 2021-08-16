@@ -1,5 +1,11 @@
 #include "shell_v2.h"
 
+/**
+* free_arg - frees the memory associated with the arg_t struct
+* @arg: arg to free
+*
+* Return: Always NULL
+*/
 void *free_arg(arg_t *arg)
 {
 	if (arg->av != NULL)
@@ -12,9 +18,11 @@ void *free_arg(arg_t *arg)
 }
 
 /**
-* handle_vars - handles variable substitution
-* @arg: arg to modify
+* handle_var - handles variable substitution
+* @key: key to match with environment variable
 * @db: reference to database struct
+*
+* Return: pointer to string that replaces variable
 */
 char *handle_var(char *key, db_t *db)
 {
@@ -22,9 +30,16 @@ char *handle_var(char *key, db_t *db)
 		return (db->pid);
 	if (key[1] != '\0')
 		return (get_env(db, &key[1]));
-	return (NULL);
+	return (key);
 }
 
+/**
+* check_pstat - determines right before execution if $? is present
+* @arg: arg to check
+* @db: reference to database struct
+*
+* Return: -1 on malloc error, else 0
+*/
 int check_pstat(arg_t *arg, db_t *db)
 {
 	int i = 0;

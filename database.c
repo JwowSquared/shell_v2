@@ -35,6 +35,12 @@ db_t *build_db(char *pname, char **env)
 	return (db);
 }
 
+/**
+* dup_atoi - converts number into new string
+* @n: number to convert to string
+*
+* Return: pointer to new string, else NULL
+*/
 char *dup_atoi(int n)
 {
 	char *out = NULL;
