@@ -167,7 +167,10 @@ int op_pipe(db_t *db, arg_t *arg)
 	}
 	close_all(pipes, num_pipes);
 	for (wpid = wait(&status); wpid > 0;)
+	{
+		WEXITSTATUS(status);
 		wpid = wait(&status);
+	}
 	free(pipes);
 	return (code == 127 ? 127 : WEXITSTATUS(status));
 }
