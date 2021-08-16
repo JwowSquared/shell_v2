@@ -130,3 +130,4 @@ KNOWN BUGS
 -More than 1 type of redirect operator can not exist in the same command.
 -More than 1 redirect operator (except pipes) can not exist in the same command.
 -fork and pipe syscall fails are unmanaged.
+-builtins can not be used with pipes.
