@@ -35,7 +35,10 @@ int handle_vars(arg_t *arg, db_t *db)
 		if (key[0] == '$')
 		{
 			if (key[1] == '\0')
+			{
+				i++;
 				continue;
+			}
 			if (key[1] == '$')
 				arg->av[i] = db->pid;
 			else if (key[1] == '?')
