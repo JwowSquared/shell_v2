@@ -87,21 +87,38 @@ int op_read(db_t *db, arg_t *arg)
 */
 int op_heredoc(db_t *db, arg_t *arg)
 {
-	int i;
-	arg_t *current;
+	char *line = NULL;
+	size_t len = 0;
+	int size, status, pipefd[2], interactive = isatty(0);
 
-	(void)db;
-
-	current = arg;
-	while (current != NULL)
+	pipe(pipefd);
+	while (1)
 	{
-		for (i = 0; current->av[i] != NULL; i++)
-			printf("%d: [%s]\n", i, current->av[i]);
-		current = current->next;
+		if (interactive)
+			printf("> ");
+		size = getline(&line, &len, stdin);
+		if (size == -1)
+			break;
+		line[size - 1] = '\0';
+		if (!_strcmp(line, arg->next->av[0]))
+			break;
+		line[size - 1] = '\n';
+		write(pipefd[WRITE], line, size);
 	}
-	printf("For use with [<<]\n");
-
-	return (1);
+	free(line);
+	if (!fork())
+	{
+		close(pipefd[WRITE]);
+		dup2(pipefd[READ], STDIN_FILENO);
+		close(pipefd[READ]);
+		execve(arg->path, arg->av, db->env);
+		perror(NULL);
+		_exit(2);
+	}
+	close(pipefd[WRITE]);
+	close(pipefd[READ]);
+	wait(&status);
+	return (WEXITSTATUS(status));
 }
 
 /**
