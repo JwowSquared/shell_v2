@@ -1,0 +1,132 @@
+# Shell v2 #
+
+This project emulates /bin/sh. Here is what is implemented.
+
+BASIC SHELL
+A prompt is displayed, and the user can input a command.
+The shell will look through the PATH environment variable for the executable specified in the command.
+Shell will exit on EOF (Ctrl+D).
+If the executable cannot be found, an error message will be printed.
+Example usage:
+	- ls
+	- ls -la /tmp
+
+
+BUILTINS
+"exit" [exit STATUS]
+Exit's the shell with the most recent executable's status code.
+Exit can be passed with an argument, and the shell will exit with that code instead.
+If exit is passed an invalid code, an error message will be printed.
+Example usage:
+	- exit
+	- exit 98
+
+"cd" [cd DESTINATION]
+Changes the current directory of the process back to the HOME directory.
+If HOME variable doesnt exist, nothing happens.
+Change directory can be passed a DESTINATION, and the shell will attempt to go there.
+If the given path does not exist, an error message will be printed.
+If change directory is given -, the shell will attempt to go to OLDPWD.
+If OLDPWD does not exist, nothing happens.
+Example usage:
+	- cd
+	- cd -
+	- cd /tmp
+
+"env" [env]
+Prints all the environment variables currently in the shell.
+Example usage:
+	- env
+
+"setenv" [setenv KEY VALUE]
+Updates or adds the new environment variable specified.
+There can not be an equals sign [=] in the KEY.
+VALUE must not be blank.
+Example usage:
+	- setenv weather sunny
+	- setenv weather cloudy
+	- setenv dinner pizza
+
+"unsetenv" [unsetenv KEY]
+Removes the environment variable associated with the given KEY.
+KEY must not be blank.
+If KEY does not match an existing environment variable, an error will be printed.
+Example usage:
+	- unsetenv weather
+	- unsetenv dinner
+
+
+SEPARATORS
+";" [command 1 ; command 2]
+The semi-colon separator allows for multiple commands to be input on one line.
+The semi-colon acts as a fresh start-- command 2 will always be executed even if command 1 fails.
+Example usage:
+	- echo Hello ; echo Howdy
+	- ls;ls -la
+
+"&&" [command 1 && command 2]
+The AND separator allows for multiple commands to be input on one line.
+If command 1 succeeds, then command 2 will be executed.
+If command 1 fails, command 2 will be skipped.
+In general, if the most recent exit status is failure, all commands after an AND separator will be skipped.
+Example usage:
+	- echo Hello && echo Howdy (both command execute)
+	- ls -w&&echo Huh? (left command fails, right command is skipped)
+	- ls -w && ls && ls (1st command fails, 2nd and 3rd commands are skipped)
+
+"||" [command 1 || command 2]
+The OR separator allows for multiple commands to be input on one line.
+If command 1 succeeds, then command 2 will be skipped.
+If command 1 fails, command 2 will be executed.
+In general, if the most recent exit status is success, all commands after an OR separator will be skipped.
+Example usage:
+	- echo Hello || echo Howdy (left command succeeds, right command is skipped)
+	- ls -w||echo Huh? (left command fails, right command is executed)
+	- ls -w || ls || ls (1st command fails, 2nd command is executed, 3rd is skipped)
+
+
+REDIRECTION OPERATORS
+">" [COMMAND > FILE]
+Redirects the STDOUT of COMMAND into FILE.
+This output is truncated, meaning the original contents of FILE are lost.
+FILE is created if it does not exist.
+Example usage:
+	- echo Hello > test
+	- ls -la>log.txt
+
+">>" [COMMAND >> FILE]
+Redirects the STDOUT of COMMAND into FILE.
+This output is appended, meaning the new content is added onto the end of the existing content of FILE.
+FILE is created if it does not exist.
+Example usage:
+	- echo Hello >> test
+	- ls -la>>log.txt
+
+"<" [COMMAND < FILE]
+Redirects the STDIN of COMMAND from FILE.
+If FILE does not exist, an error is printed.
+Example usage:
+	- rev < test
+	- cat -e<log
+
+"<<" [COMMAND << DELIM]
+Redirects the heredoc to the STDIN of COMMAND.
+The heredoc allows the user to input lines directly in the terminal.
+This continues until EOF or the input line matches DELIM exactly.
+Example usage:
+	- cat -e << cookies
+	> Hello
+	> cookies
+
+"|" [command 1 | command 2]
+Redirects the STDOUT of command 1 to the STDIN of command 2.
+Any number of pipes can be chained together.
+Example usage:
+	- echo Hello | rev
+	- echo test|cat -e|rev
+
+
+KNOWN BUGS
+-More than 1 type of redirect operator can not exist in the same command.
+-More than 1 redirect operator (except pipes) can not exist in the same command.
+-fork and pipe syscall fails are unmanaged.
