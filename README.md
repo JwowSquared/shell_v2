@@ -10,13 +10,13 @@ My primary focus was to limit memory usage. In Shell v1, I was very reckless wit
 I had to undergo 2 massive rewrites of my core logic. The first was 14 days into the project, where I realized that commands do not necessarily have spaces around separator and redirection operators. My core relied on these spaces, using the strtok() function with space as a delimiter. Thankfully about half of my logic transferred to the new system, where I abandoned my old strtok() strategy and coded a new function that actually used LESS memory despite being more complex. The second rewrite was actually 20 days in, where I noticed that multiple pipe operators could be present in one command. My previous infastructure relied on exactly 1 pipe, and so I had to write a new function that allowed for any number of pipes in a command. My core logic explicitly had a collection of words LEFT of a redirect operator and RIGHT of a redirect operator, but those had to be replaced with a linked list of collections. This rewrite was pretty seamless, but also fairly stressful to be done so close to the deadline. I am very proud of myself for working so dilligently throughout the entire deadline, and to finish 100% of the mandatory tasks feels awesome.
 
 ## Cool Things To Check Out
-**eprint.c**
+* **eprint.c**
 My error handling functions, `eprint` and `vfeprint`. Passing eprint a MACRO error code and using a variadic function toprint the different error cases was a super satisfying solution.
-**gumball.c**
+* **gumball.c**
 the redirect function pointer "gumball" machine, `rball`. This one is really cool because when the first character of the operator matches, I can move to the appropriate function return by adding 1 to `i` if the second character matches the first character. This is especially cool because two pipes are NOT a redirect operator, and if the second character matches the first, in this case `i` moves forward and returns NULL to indicate a failure to match. The fact that I can generalize the 3 cases while returning something in the first 2 cases and nothing in the third case is really neat.
-**database.c**
+* **database.c**
 My linked list to `char **` converter, `format_env`. The flags required for this really cluttered my database struct, but the efficiency is crazy. This is where the high startup cost but low maintenance cost comes from. I copy the `envp` argument from main into a linked list, which is where I manage additions, modifications and deletions from `setenv` and `unsetenv`. However, `execve` requires a `char **`, and so I allocate memory just large enough to hold the linked list, and I have the pointers in the array just point to the existing strings in my linked list instead of copying the strings. I also maintain a reference to this array memory, and I only reallocate it if the size of my linked list increases past the stored maximum. Shell v1 copied the entire array any time there was a modification, which would incur a huge memory penalty. All modifications besides increasing past the maximum size have little or no memory cost in Shell v2.
-**op_redirect.c**
+* **op_redirect.c**
 The two redirects involving pipes, `op_heredoc` and `op_pipe`. Pipes were completely new to me for this project, and getting the heredoc and pipe operators to actually work was super satisfying. Especially my logic that handles any number of pipes.
 
 ## Thank You
