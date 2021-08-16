@@ -1,22 +1,14 @@
 #include "shell_v2.h"
 
-/**
-* handle_comments - handles #
-* @arg: arg to modify
-*/
-void handle_comments(arg_t *arg)
+void *free_arg(arg_t *arg)
 {
-	int i = 0;
+	if (arg->av != NULL)
+		free(arg->av);
+	if (arg->path != NULL && arg->check_path != 1)
+		free(arg->path);
+	free(arg);
 
-	while (arg->av[i] != NULL)
-	{
-		if (arg->av[i][0] == '#')
-		{
-			arg->av[i] = NULL;
-			break;
-		}
-		i++;
-	}
+	return (NULL);
 }
 
 /**
@@ -24,7 +16,16 @@ void handle_comments(arg_t *arg)
 * @arg: arg to modify
 * @db: reference to database struct
 */
-int handle_vars(arg_t *arg, db_t *db)
+char *handle_var(char *key, db_t *db)
+{
+	if (key[1] == '$')
+		return (db->pid);
+	if (key[1] != '\0')
+		return (get_env(db, &key[1]));
+	return (NULL);
+}
+
+int check_pstat(arg_t *arg, db_t *db)
 {
 	int i = 0;
 	char *key = NULL;
@@ -32,40 +33,14 @@ int handle_vars(arg_t *arg, db_t *db)
 	while (arg->av[i] != NULL)
 	{
 		key = arg->av[i];
-		if (key[0] == '$')
+		if (key[0] == '$' && key[1] == '?')
 		{
-			if (key[1] == '\0')
-			{
-				i++;
-				continue;
-			}
-			if (key[1] == '$')
-				arg->av[i] = db->pid;
-			else if (key[1] == '?')
-			{
-				if (db->vstat != NULL)
-					free(db->vstat);
-				db->vstat = dup_atoi(db->pstat);
-				if (db->vstat == NULL)
-					return (-1);
-				arg->av[i] = db->vstat;
-			}
-			else
-				arg->av[i] = get_env(db, &key[1]);
-			if (i == 0)
-			{
-				if (arg->path != NULL)
-					free(arg->path);
-				arg->path = NULL;
-				arg->check_path = setup_path(arg, db);
-				if (arg->check_path == -2 || errno == ENOMEM)
-					return (-1);
-				if (arg->path == NULL && arg->check_path == 0)
-				{
-					arg->check_path = 1;
-					arg->path = arg->av[0];
-				}
-			}
+			if (db->vstat != NULL)
+				free(db->vstat);
+			db->vstat = dup_atoi(db->pstat);
+			if (db->vstat == NULL)
+				return (-1);
+			arg->av[i] = db->vstat;
 		}
 		i++;
 	}

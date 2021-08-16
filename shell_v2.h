@@ -141,9 +141,10 @@ typedef struct bball_s
 #define DB_ERR 7
 #define PATH_ERR 8
 #define READ_ERR 9
+int check_pstat(arg_t *arg, db_t *db);
+char *handle_var(char *key, db_t *db);
+void *free_arg(arg_t *arg);
 
-int handle_vars(arg_t *arg, db_t *db);
-void handle_comments(arg_t *arg);
 
 /* Database Functions */
 db_t *build_db(char *, char **);

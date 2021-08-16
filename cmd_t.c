@@ -75,32 +75,29 @@ arg_t *build_arg(char *line, db_t *db)
 	out->check_path = 0;
 	out->av = malloc(sizeof(char *) * (count_words(line) + 1));
 	if (out->av == NULL)
-	{
-		free(out);
-		return (NULL);
-	}
+		return (free_arg(out));
 
 	for (i = 0; (tmp = strtok(line, " ")); i++)
 	{
 		line = NULL;
-		out->av[i] = tmp;
+		if (tmp[0] == '#')
+			break;
+		if (tmp[0] == '$' && tmp[1] != '?')
+			out->av[i] = handle_var(tmp, db);
+		else
+			out->av[i] = tmp;
 	}
 	out->av[i] = NULL;
 
 	out->check_path = setup_path(out, db);
 	if (out->check_path == -2 || errno == ENOMEM)
-	{
-		free(out->av);
-		free(out);
-		return (NULL);
-	}
+		return (free_arg(out));
 
 	if (out->path == NULL && out->check_path == 0)
 	{
 		out->check_path = 1;
 		out->path = out->av[0];
 	}
-	handle_comments(out);
 	return (out);
 }
 
@@ -166,7 +163,7 @@ int execute_arg(db_t *db, arg_t *arg)
 	int status;
 	int (*bi)(db_t *, char **);
 
-	if (handle_vars(arg, db) == -1)
+	if (check_pstat(arg, db) == -1)
 		return (eprint(MALLOC_ERR, db, NULL));
 
 	bi = bball(arg->av[0]);
@@ -211,10 +208,7 @@ void *free_cmd(cmd_t *cmd)
 	while (tmp != NULL)
 	{
 		cmd->head = cmd->head->next;
-		free(tmp->av);
-		if (tmp->path && tmp->check_path != 1)
-			free(tmp->path);
-		free(tmp);
+		free_arg(tmp);
 		tmp = cmd->head;
 	}
 

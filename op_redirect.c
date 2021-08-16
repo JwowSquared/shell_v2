@@ -131,7 +131,7 @@ int op_heredoc(db_t *db, arg_t *arg)
 int op_pipe(db_t *db, arg_t *arg)
 {
 	int status, (*pipes)[2];
-	int num_pipes = 0, i = 0, j, wpid, code = 0;
+	int num_pipes = 0, i = 0, j, code = 0;
 	arg_t *current;
 
 	db->env = format_env(db);
@@ -147,11 +147,7 @@ int op_pipe(db_t *db, arg_t *arg)
 	for (current = arg; i < num_pipes; i++)
 	{
 		if (current->check_path == -1)
-		{
-			eprint(PATH_ERR, db, current->av);
-			if (i + 1 == num_pipes)
-				code = 127;
-		}
+			code = eprint(PATH_ERR, db, current->av);
 		else if (!fork())
 		{
 			if (i != 0)
@@ -163,14 +159,13 @@ int op_pipe(db_t *db, arg_t *arg)
 			perror(NULL);
 			_exit(2);
 		}
+		if (i != 0)
+			close(pipes[i][READ]);
+		close(pipes[i][WRITE]);
+		if (wait(&status) > 0)
+			code = WEXITSTATUS(status);
 		current = current->next;
 	}
-	close_all(pipes, num_pipes);
-	for (wpid = wait(&status); wpid > 0;)
-	{
-		WEXITSTATUS(status);
-		wpid = wait(&status);
-	}
 	free(pipes);
-	return (code == 127 ? 127 : WEXITSTATUS(status));
+	return (code);
 }
