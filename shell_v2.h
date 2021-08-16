@@ -141,9 +141,7 @@ typedef struct bball_s
 #define DB_ERR 7
 #define PATH_ERR 8
 #define READ_ERR 9
-int check_pstat(arg_t *arg, db_t *db);
-char *handle_var(char *key, db_t *db);
-void *free_arg(arg_t *arg);
+
 
 
 /* Database Functions */
@@ -162,9 +160,14 @@ void *free_listcmd(listcmd_t *);
 /* cmd_t Functions */
 cmd_t *build_cmd(db_t *, char *, char);
 arg_t *build_arg(char *, db_t *);
-int setup_path(arg_t *, db_t *);
 int execute_arg(db_t *, arg_t *);
+void *free_arg(arg_t *arg);
 void *free_cmd(cmd_t *);
+
+/* cmd_t Helpers */
+int setup_path(arg_t *, db_t *);
+char *handle_var(char *key, db_t *db);
+int check_pstat(arg_t *arg, db_t *db);
 
 /* Gumball Functions */
 int (*rball(char *))(db_t *, arg_t *);

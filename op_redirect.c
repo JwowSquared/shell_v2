@@ -160,12 +160,13 @@ int op_pipe(db_t *db, arg_t *arg)
 			_exit(2);
 		}
 		if (i != 0)
-			close(pipes[i][READ]);
+			close(pipes[i - 1][READ]);
 		close(pipes[i][WRITE]);
 		if (wait(&status) > 0)
 			code = WEXITSTATUS(status);
 		current = current->next;
 	}
+	close(pipes[i - 1][READ]);
 	free(pipes);
 	return (code);
 }

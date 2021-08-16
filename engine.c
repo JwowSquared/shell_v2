@@ -22,6 +22,8 @@ int main(int ac, char **av, char **env)
 
 	(void)ac;
 
+	signal(SIGINT, SIG_IGN);
+
 	db = build_db(av[0], env);
 	if (db == NULL)
 		exit(eprint(DB_ERR, NULL, av));

@@ -102,56 +102,6 @@ arg_t *build_arg(char *line, db_t *db)
 }
 
 /**
-* setup_path - determines if their is a valid path for arg, and sets check_path
-* @arg: arg struct to determine file name and store path
-* @db: reference to database struct, used for get_env
-*
-* Return: 0 on sucess, -1 on path fail or lstat malloc fail, -2 on malloc fail
-*/
-int setup_path(arg_t *arg, db_t *db)
-{
-	struct stat st;
-	int i = 0;
-	char *slice, *out = NULL, *p, *name = arg->av[0], *path = get_env(db, "PATH");
-
-	if (name == NULL)
-		return (0);
-
-	while (name[i])
-		if (name[i++] == '/')
-			return (lstat(name, &st));
-	if (path == NULL)
-		return (-1);
-	path = _strdup(path);
-	if (path == NULL)
-		return (-2);
-	p = path;
-	while ((slice = strtok(p, ":")))
-	{
-		p = NULL;
-		out = malloc(sizeof(char) * (2 + _strlen(name) + _strlen(slice)));
-		if (out == NULL)
-		{
-			free(path);
-			return (-2);
-		}
-		sprintf(out, "%s/%s", slice, name);
-		if (lstat(out, &st) == 0)
-			break;
-		free(out);
-		out = NULL;
-		if (errno == ENOMEM)
-			break;
-	}
-	free(path);
-	if (out == NULL)
-		return (-1);
-	arg->path = out;
-
-	return (0);
-}
-
-/**
 * execute_arg - executes a command
 * @db: reference to database struct
 * @arg: current arg struct being executed
@@ -189,6 +139,23 @@ int execute_arg(db_t *db, arg_t *arg)
 	wait(&status);
 
 	return (WEXITSTATUS(status));
+}
+
+/**
+* free_arg - frees the memory associated with the arg_t struct
+* @arg: arg to free
+*
+* Return: Always NULL
+*/
+void *free_arg(arg_t *arg)
+{
+	if (arg->av != NULL)
+		free(arg->av);
+	if (arg->path != NULL && arg->check_path != 1)
+		free(arg->path);
+	free(arg);
+
+	return (NULL);
 }
 
 /**
