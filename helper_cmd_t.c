@@ -34,6 +34,8 @@ int handle_vars(arg_t *arg, db_t *db)
 		key = arg->av[i];
 		if (key[0] == '$')
 		{
+			if (key[1] == '\0')
+				continue;
 			if (key[1] == '$')
 				arg->av[i] = db->pid;
 			else if (key[1] == '?')
@@ -47,6 +49,20 @@ int handle_vars(arg_t *arg, db_t *db)
 			}
 			else
 				arg->av[i] = get_env(db, &key[1]);
+			if (i == 0)
+			{
+				if (arg->path != NULL)
+					free(arg->path);
+				arg->path = NULL;
+				arg->check_path = setup_path(arg, db);
+				if (arg->check_path == -2 || errno == ENOMEM)
+					return (-1);
+				if (arg->path == NULL && arg->check_path == 0)
+				{
+					arg->check_path = 1;
+					arg->path = arg->av[0];
+				}
+			}
 		}
 		i++;
 	}

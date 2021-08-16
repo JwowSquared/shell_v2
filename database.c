@@ -59,12 +59,12 @@ char *dup_atoi(int n)
 	if (out == NULL)
 		return (NULL);
 
-	for (i = 0; n > 0; i++)
+	for (i = len - 1; n > 0; i--)
 	{
 		out[i] = n % 10 + 48;
 		n /= 10;
 	}
-	out[i] = '\0';
+	out[len] = '\0';
 
 	return (out);
 }
