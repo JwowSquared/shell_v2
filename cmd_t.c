@@ -100,7 +100,7 @@ arg_t *build_arg(char *line, db_t *db)
 		out->check_path = 1;
 		out->path = out->av[0];
 	}
-
+	handle_comments(out);
 	return (out);
 }
 
@@ -165,6 +165,9 @@ int execute_arg(db_t *db, arg_t *arg)
 {
 	int status;
 	int (*bi)(db_t *, char **);
+
+	if (handle_vars(arg, db) == -1)
+		return (eprint(MALLOC_ERR, db, NULL));
 
 	bi = bball(arg->av[0]);
 	if (bi != NULL)

@@ -49,6 +49,8 @@ typedef struct arg_s
 * @envh: head of a linked list representation of the environment variables
 * @h_size: the current number of nodes in the envh linked list
 * @h_diff: flag set to mark that envh has been updated
+* @pid: string representation of the shell's process ID
+* @vstat: string representation of pstat
 */
 typedef struct db_s
 {
@@ -61,6 +63,8 @@ typedef struct db_s
 	env_t *envh;
 	int h_size;
 	int h_diff;
+	char *pid;
+	char *vstat;
 } db_t;
 
 /**
@@ -138,10 +142,12 @@ typedef struct bball_s
 #define PATH_ERR 8
 #define READ_ERR 9
 
-
+int handle_vars(arg_t *arg, db_t *db);
+void handle_comments(arg_t *arg);
 
 /* Database Functions */
 db_t *build_db(char *, char **);
+char *dup_atoi(int n);
 int rev_env(db_t *, char **);
 char **format_env(db_t *);
 void *free_db(db_t *);
