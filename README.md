@@ -1,7 +1,8 @@
 # Shell v2
-
 Shell v2 is a project for Holberton which emulates the Unix shell `/bin/sh`.
 Over 22 days, I wrote this entire project from scratch.
+You can compile via the Makefile, which will create the `hsh` executable.
+commands can be piped in such as `echo "ls -la" | ./hsh`, or you can simply run `./hsh` and the program will ask for your input. You can exit the interactive mode with the `exit` command.
 
 ## The Development Process
 My primary focus was to limit memory usage. In Shell v1, I was very reckless with my memory, copying many things many times as it was the most straight forward for me as a student in early Foundations at Holberton. Now a year later, I knew I wanted to avoid this approach and instead optimize and use minimal memory, even if I spent a lot of extra development time as a result. I used linked lists and pointers to my advantage with great results in this project. Because of this, my shell has about a 2600 byte start up cost to initialize my environment variable list, and only uses about 300 bytes for each simple command, including setenv and unsetenv which were huge road blocks in Shell v1. Thanks to my efforts, Shell v2 uses about 100x less memory than my Shell v1.

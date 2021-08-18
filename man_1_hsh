@@ -1,8 +1,15 @@
-# Shell v2 #
+HSH(1)                                         Manual Page for hsh                                         HSH(1)
 
-This project emulates /bin/sh. Here is what is implemented.
+NAME
+     hsh — command interpreter (shell)
 
-BASIC SHELL
+SYNOPSIS
+     hsh (no options)
+
+DESCRIPTION
+     hsh is a partial replica of the dash shell (see dash(1)). All implemented features are discussed below.
+
+Overview
 A prompt is displayed, and the user can input a command.
 The shell will look through the PATH environment variable for the executable specified in the command.
 Shell will exit on EOF (Ctrl+D).
